@@ -13,4 +13,11 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(m_View)
     }
+
+
+
+    override fun onDestroy() {   //종료가 될시 메모리 누수를 방지
+        super.onDestroy()
+        m_View.m_IsEnd = false
+    }
 }
