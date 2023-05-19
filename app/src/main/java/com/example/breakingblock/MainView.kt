@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.view.MotionEvent
 import android.view.View
 
 class MainView(context: Context) : View(context) {
@@ -40,6 +41,10 @@ class MainView(context: Context) : View(context) {
         canvas.drawBitmap(m_Img_Paddle,m_Paddle_X.toFloat(),m_Paddle_Y.toFloat(),null)
         canvas.drawBitmap(m_Img_btnLeft,m_BtnLeft_X.toFloat(),m_BtnLeft_Y.toFloat(),null)
         canvas.drawBitmap(m_Img_btnRight,m_BtnRight_X.toFloat(),m_BtnRight_Y.toFloat(),null)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return super.onTouchEvent(event)
     }
 
     fun func_Setting() {
