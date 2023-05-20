@@ -51,6 +51,7 @@ class MainView(context: Context) : View(context) {
         super.onDraw(canvas)
         canvas.drawColor(Color.YELLOW)  // 배경 색 노랑으로 설정 (추후 변경 예정)
         func_BallMove()
+        func_PaddleCheck()
 
         m_Img_Ball?.let { canvas.drawBitmap(it,m_Ball_X.toFloat(),m_Ball_Y.toFloat(),null) }
         canvas.drawBitmap(m_Img_Paddle,m_Paddle_X.toFloat(),m_Paddle_Y.toFloat(),null)
@@ -163,6 +164,22 @@ class MainView(context: Context) : View(context) {
                 func_Reset()
             }
         }
+    }
+
+    //패들 충돌 확인
+    private fun func_PaddleCheck(){
+        if(m_IsPlay){
+            if(m_Paddle_X-m_Ball_R <= m_Ball_X && m_Ball_X <= m_Paddle_X+m_Paddle_W-m_Ball_R
+                && m_Paddle_Y-m_Ball_D <= m_Ball_Y && m_Ball_Y <= m_Paddle_Y-m_Ball_R){
+                m_Ball_SpeedY *= -1
+                if(m_Paddle_Y-m_Ball_D <= m_Ball_Y)m_Ball_Y = m_Paddle_Y-m_Ball_D - (m_Ball_Y-(m_Paddle_Y-m_Ball_D))
+            }else if(m_Paddle_Y-m_Ball_R <= m_Ball_Y && m_Ball_Y <= m_Paddle_Y+m_Ball_R
+                && m_Paddle_X-m_Ball_D <= m_Ball_X && m_Ball_X <= m_Paddle_X+m_Paddle_W){
+                m_Ball_SpeedX *=-1
+                m_Ball_X += m_Ball_SpeedX
+            }
+        }
+
     }
 
     var m_IsEnd: Boolean = true  //메모리 누수 방지를 위한 핸들러
