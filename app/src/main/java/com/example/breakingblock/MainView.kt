@@ -53,12 +53,15 @@ class MainView(context: Context) : View(context) {
         canvas.drawColor(Color.YELLOW)  // 배경 색 노랑으로 설정 (추후 변경 예정)
         func_BallMove()
         func_PaddleCheck()
+        func_BlockCheck()
 
         imgBall?.let { canvas.drawBitmap(it, ballX.toFloat(), ballY.toFloat(), null) }
         canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
         canvas.drawBitmap(imgBtnLeft, btnLeftX.toFloat(), btnLeftY.toFloat(), null)
         canvas.drawBitmap(imgBtnRight, btnRightX.toFloat(), btnRightY.toFloat(), null)
-
+        for (w_Block in m_Arr_BlockList) {
+            canvas.drawBitmap(m_Img_Block, w_Block.Block_X, w_Block.Block_Y, null)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -148,6 +151,9 @@ class MainView(context: Context) : View(context) {
         ballY = paddleY - ballDiameter
     }
 
+    //블럭 만들기
+
+
     //공의 움직임 처리
     private fun func_BallMove() {
         if (isPlay) {
@@ -184,6 +190,21 @@ class MainView(context: Context) : View(context) {
         }
 
     }
+
+    // 블럭 충돌 확인
+    private fun func_BlockCheck() {
+        for (w_Block in m_Arr_BlockList) {
+            val w_BlockCheck = w_Block.isClash(ballX, ballY, ballDiameter, ballRadius)
+            when (w_BlockCheck) {
+                0 -> continue
+                1, 2 -> ballSpeedX *= -1
+                3, 4 -> ballSpeedY *= -1
+            }
+            m_Arr_BlockList.remove(w_Block)
+            break
+        }
+    }
+
 
     var isEnd: Boolean = true  //메모리 누수 방지를 위한 핸들러
     private fun handlerViewReload(delayTime: Long) {
