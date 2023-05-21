@@ -8,88 +8,88 @@ import android.view.MotionEvent
 import android.view.View
 
 class MainView(context: Context) : View(context) {
-    var m_ViewWidth: Int = 0   //화면의 넓이
-    var m_ViewHeight: Int = 0  //화면의 높이
+    var viewWidth: Int = 0   //화면의 넓이
+    var viewHeight: Int = 0  //화면의 높이
 
-    lateinit var m_Img_btnLeft: Bitmap
-    lateinit var m_Img_btnRight: Bitmap
-    lateinit var m_Img_Paddle: Bitmap
+    lateinit var imgBtnLeft: Bitmap
+    lateinit var imgBtnRight: Bitmap
+    lateinit var imgPaddle: Bitmap
 
-    var m_BtnLeft_X : Int = 0           //왼쪽 버튼 X좌표
-    var m_BtnLeft_Y : Int = 0           //왼쪽 버튼 Y좌표
-    var m_BtnRight_X : Int = 0          //오른쪽 버튼 X좌표
-    var m_BtnRight_Y : Int = 0         //오른쪽 버튼 Y좌표
-    var m_Paddle_X : Int = 0          //패들 X좌표
-    var m_Paddle_Y : Int = 0          //패들 Y좌표
+    var btnLeftX: Int = 0           //왼쪽 버튼 X좌표
+    var btnLeftY: Int = 0           //왼쪽 버튼 Y좌표
+    var btnRightX: Int = 0          //오른쪽 버튼 X좌표
+    var btnRightY: Int = 0         //오른쪽 버튼 Y좌표
+    var paddleX: Int = 0          //패들 X좌표
+    var paddleY: Int = 0          //패들 Y좌표
 
-    var m_Btn_W :Int = 0             //버튼 넓이
-    var m_Btn_H :Int = 0            //버튼 높이
-    var m_Paddle_W : Int = 0        // 패들 넓이
-    var m_Paddle_H : Int = 0        // 패들 높이
+    var btnWidth: Int = 0             //버튼 넓이
+    var btnHeight: Int = 0            //버튼 높이
+    var paddleWidth: Int = 0        // 패들 넓이
+    var paddleHeight: Int = 0        // 패들 높이
 
     var mRectBtnLeft: Rect = Rect() //버튼 터치 영역
     var mRectBtnRight: Rect = Rect() //버튼 터치 영역
 
-    var m_Img_Ball: Bitmap? = null // 공
-    var m_Ball_X : Int = 0 // 공의 X좌표
-    var m_Ball_Y : Int = 0 //  공의 Y좌표
-    var m_Ball_D : Int = 0 // 공의 지름
-    var m_Ball_R : Int = 0 // 공의 반지름
-    var m_Ball_Speed : Int = 0 // 공의 속도
-    var m_Ball_SpeedX : Int = 0 // 공의 X방향 속도
-    var m_Ball_SpeedY : Int = 0 // 공의 Y방향 속도
+    var imgBall: Bitmap? = null // 공
+    var ballX: Int = 0 // 공의 X좌표
+    var ballY: Int = 0 //  공의 Y좌표
+    var ballDiameter: Int = 0 // 공의 지름
+    var ballRadius: Int = 0 // 공의 반지름
+    var ballSpeed: Int = 0 // 공의 속도
+    var ballSpeedX: Int = 0 // 공의 X방향 속도
+    var ballSpeedY: Int = 0 // 공의 Y방향 속도
 
-    var m_IsPlay : Boolean = false // 게임상태
+    var isPlay: Boolean = false // 게임상태
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        m_ViewHeight = h
-        m_ViewWidth =w
+        viewHeight = h
+        viewWidth = w
         func_Setting()
     }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawColor(Color.YELLOW)  // 배경 색 노랑으로 설정 (추후 변경 예정)
         func_BallMove()
         func_PaddleCheck()
 
-        m_Img_Ball?.let { canvas.drawBitmap(it,m_Ball_X.toFloat(),m_Ball_Y.toFloat(),null) }
-        canvas.drawBitmap(m_Img_Paddle,m_Paddle_X.toFloat(),m_Paddle_Y.toFloat(),null)
-        canvas.drawBitmap(m_Img_btnLeft,m_BtnLeft_X.toFloat(),m_BtnLeft_Y.toFloat(),null)
-        canvas.drawBitmap(m_Img_btnRight,m_BtnRight_X.toFloat(),m_BtnRight_Y.toFloat(),null)
+        imgBall?.let { canvas.drawBitmap(it, ballX.toFloat(), ballY.toFloat(), null) }
+        canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
+        canvas.drawBitmap(imgBtnLeft, btnLeftX.toFloat(), btnLeftY.toFloat(), null)
+        canvas.drawBitmap(imgBtnRight, btnRightX.toFloat(), btnRightY.toFloat(), null)
 
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val w_X: Int = event?.x?.toInt() ?: 0
-        val w_Y: Int = event?.y?.toInt() ?: 0
+        val touchX: Int = event?.x?.toInt() ?: 0  // 터치한 곳의 X좌표
+        val touchY: Int = event?.y?.toInt() ?: 0  // 터치한 곳의 Y좌표
         val wKeyAction: Int = event?.action ?: 0
 
         when (wKeyAction) {
             MotionEvent.ACTION_DOWN -> {
-                if(m_IsPlay) {
-                    if(mRectBtnLeft.contains(w_X,w_Y)){ //왼쪽 버튼을 눌렀을때
-                        m_IsTouch = true
-                        m_Handler_btnLeft(0)
-                    }else if(mRectBtnRight.contains(w_X,w_Y)){      //오른쪽 버튼을 눌렀을때
-                        m_IsTouch = true
-                        m_Handler_btnRight(0)
+                if (isPlay) {
+                    if (mRectBtnLeft.contains(touchX, touchY)) { //왼쪽 버튼을 눌렀을때
+                        isTouch = true
+                        handlerBtnLeft(0)
+                    } else if (mRectBtnRight.contains(touchX, touchY)) {      //오른쪽 버튼을 눌렀을때
+                        isTouch = true
+                        handlerBtnRight(0)
                     }
-                }
-                else {
-                    if(mRectBtnLeft.contains(w_X,w_Y)){ //왼쪽 버튼을 눌렀을때
-                        m_IsPlay = true
-                        m_Ball_SpeedX = -m_Ball_Speed
-                        m_Ball_SpeedY = -m_Ball_Speed
-                    }else if(mRectBtnRight.contains(w_X,w_Y)){      //오른쪽 버튼을 눌렀을때
-                        m_IsPlay = true
-                        m_Ball_SpeedX = m_Ball_Speed
-                        m_Ball_SpeedY = -m_Ball_Speed
+                } else {
+                    if (mRectBtnLeft.contains(touchX, touchY)) { //왼쪽 버튼을 눌렀을때
+                        isPlay = true
+                        ballSpeedX = -ballSpeed
+                        ballSpeedY = -ballSpeed
+                    } else if (mRectBtnRight.contains(touchX, touchY)) {      //오른쪽 버튼을 눌렀을때
+                        isPlay = true
+                        ballSpeedX = ballSpeed
+                        ballSpeedY = -ballSpeed
                     }
                 }
             }
-            MotionEvent.ACTION_UP ->{
-                m_IsTouch = false
+            MotionEvent.ACTION_UP -> {
+                isTouch = false
             }
         }
         return true
@@ -97,119 +97,122 @@ class MainView(context: Context) : View(context) {
 
     private fun func_Setting() {
         // 버튼 초기화
-        m_Img_btnLeft = BitmapFactory.decodeResource(resources, R.drawable.btn_block_left)
-        m_Img_btnRight = BitmapFactory.decodeResource(resources, R.drawable.btn_block_right)
-        m_Btn_W = m_ViewWidth / 8 // 버튼 크기 설정 (정사각형)
-        m_Btn_H = m_ViewWidth / 8 // 버튼 크기 설정 (정사각형)
-        m_BtnLeft_X = 0
-        m_BtnLeft_Y = m_ViewHeight - m_Btn_H
-        m_BtnRight_X = m_ViewWidth - m_Btn_W
-        m_BtnRight_Y = m_ViewHeight - m_Btn_H
-        m_Img_btnLeft = Bitmap.createScaledBitmap(m_Img_btnLeft, m_Btn_W, m_Btn_H, false)
-        m_Img_btnRight = Bitmap.createScaledBitmap(m_Img_btnRight, m_Btn_W, m_Btn_H, false)
-        mRectBtnLeft = Rect(m_BtnLeft_X, m_BtnLeft_Y, m_BtnLeft_X + m_Btn_W, m_BtnLeft_Y + m_Btn_H)
-        mRectBtnRight = Rect(m_BtnRight_X, m_BtnRight_Y, m_BtnRight_X + m_Btn_W, m_BtnRight_Y + m_Btn_H)
+        imgBtnLeft = BitmapFactory.decodeResource(resources, R.drawable.btn_block_left)
+        imgBtnRight = BitmapFactory.decodeResource(resources, R.drawable.btn_block_right)
+        btnWidth = viewWidth / 8 // 버튼 크기 설정 (정사각형)
+        btnHeight = viewWidth / 8 // 버튼 크기 설정 (정사각형)
+        btnLeftX = 0
+        btnLeftY = viewHeight - btnHeight
+        btnRightX = viewWidth - btnWidth
+        btnRightY = viewHeight - btnHeight
+        imgBtnLeft = Bitmap.createScaledBitmap(imgBtnLeft, btnWidth, btnHeight, false)
+        imgBtnRight = Bitmap.createScaledBitmap(imgBtnRight, btnWidth, btnHeight, false)
+        mRectBtnLeft = Rect(btnLeftX, btnLeftY, btnLeftX + btnWidth, btnLeftY + btnHeight)
+        mRectBtnRight = Rect(btnRightX, btnRightY, btnRightX + btnWidth, btnRightY + btnHeight)
 
         // 패들 초기화
-        m_Img_Paddle = BitmapFactory.decodeResource(resources, R.drawable.block_paddle)
-        m_Paddle_W = m_ViewWidth / 5
-        m_Paddle_H = m_Paddle_W / 4
-        m_Paddle_X = m_ViewWidth / 2 - m_Paddle_W / 2
-        m_Paddle_Y = m_BtnLeft_Y - m_Paddle_H - m_Paddle_H / 2
-        m_Img_Paddle = Bitmap.createScaledBitmap(m_Img_Paddle, m_Paddle_W, m_Paddle_H, false)
+        imgPaddle = BitmapFactory.decodeResource(resources, R.drawable.block_paddle)
+        paddleWidth = viewWidth / 5
+        paddleHeight = paddleWidth / 4
+        paddleX = viewWidth / 2 - paddleWidth / 2
+        paddleY = btnLeftY - paddleHeight - paddleHeight / 2
+        imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
 
         // 공 초기화
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
-        m_Ball_D = m_Paddle_H
-        m_Ball_R = m_Ball_D / 2
-        m_Ball_X = m_ViewWidth / 2 - m_Ball_R
-        m_Ball_Y = m_Paddle_Y - m_Ball_D
-        m_Img_Ball = Bitmap.createScaledBitmap(tempBitmap, m_Ball_D, m_Ball_D, false)
+        ballDiameter = paddleHeight
+        ballRadius = ballDiameter / 2
+        ballX = viewWidth / 2 - ballRadius
+        ballY = paddleY - ballDiameter
+        imgBall = Bitmap.createScaledBitmap(tempBitmap, ballDiameter, ballDiameter, false)
 
-        m_Ball_Speed = m_Ball_R
-        m_Ball_SpeedX = 0
-        m_Ball_SpeedY = 0
+        ballSpeed = ballRadius
+        ballSpeedX = 0
+        ballSpeedY = 0
 
-        m_Handler_ViewReload(0)
+        handlerViewReload(0)
     }
 
     //공 리셋 처리
-    private fun func_Reset(){
-        m_IsPlay = false
-        m_IsTouch = false
+    private fun func_Reset() {
+        isPlay = false
+        isTouch = false
 
-        m_Ball_SpeedX = 0
-        m_Ball_SpeedY = 0
+        ballSpeedX = 0
+        ballSpeedY = 0
 
-        m_Paddle_X = m_ViewWidth / 2 - m_Paddle_W / 2
-        m_Paddle_Y = m_BtnLeft_Y - m_Paddle_H - m_Paddle_H / 2
+        paddleX = viewWidth / 2 - paddleWidth / 2
+        paddleY = btnLeftY - paddleHeight - paddleHeight / 2
 
-        m_Ball_X = m_ViewWidth / 2 - m_Ball_R
-        m_Ball_Y = m_Paddle_Y - m_Ball_D
+        ballX = viewWidth / 2 - ballRadius
+        ballY = paddleY - ballDiameter
     }
 
     //공의 움직임 처리
-    private fun func_BallMove(){
-        if(m_IsPlay){
-            m_Ball_X += m_Ball_SpeedX
-            m_Ball_Y += m_Ball_SpeedY
+    private fun func_BallMove() {
+        if (isPlay) {
+            ballX += ballSpeedX
+            ballY += ballSpeedY
 
-            if(m_Ball_X <= 0 || m_Ball_X >= m_ViewWidth - m_Ball_D) {
-                m_Ball_SpeedX *= -1
+            if (ballX <= 0 || ballX >= viewWidth - ballDiameter) {
+                ballSpeedX *= -1
             }
-            if(m_Ball_Y <= 0) {
-                m_Ball_SpeedY *= -1
+            if (ballY <= 0) {
+                ballSpeedY *= -1
             }
-            if(m_Ball_Y >= m_ViewHeight) {
+            if (ballY >= viewHeight) {
                 func_Reset()
             }
         }
     }
 
     //패들 충돌 확인
-    private fun func_PaddleCheck(){
-        if(m_IsPlay){
-            if(m_Paddle_X-m_Ball_R <= m_Ball_X && m_Ball_X <= m_Paddle_X+m_Paddle_W-m_Ball_R
-                && m_Paddle_Y-m_Ball_D <= m_Ball_Y && m_Ball_Y <= m_Paddle_Y-m_Ball_R){
-                m_Ball_SpeedY *= -1
-                if(m_Paddle_Y-m_Ball_D <= m_Ball_Y)m_Ball_Y = m_Paddle_Y-m_Ball_D - (m_Ball_Y-(m_Paddle_Y-m_Ball_D))
-            }else if(m_Paddle_Y-m_Ball_R <= m_Ball_Y && m_Ball_Y <= m_Paddle_Y+m_Ball_R
-                && m_Paddle_X-m_Ball_D <= m_Ball_X && m_Ball_X <= m_Paddle_X+m_Paddle_W){
-                m_Ball_SpeedX *=-1
-                m_Ball_X += m_Ball_SpeedX
+    private fun func_PaddleCheck() {
+        if (isPlay) {
+            if (paddleX - ballRadius <= ballX && ballX <= paddleX + paddleWidth - ballRadius
+                && paddleY - ballDiameter <= ballY && ballY <= paddleY - ballRadius
+            ) {
+                ballSpeedY *= -1
+                if (paddleY - ballDiameter <= ballY) ballY =
+                    paddleY - ballDiameter - (ballY - (paddleY - ballDiameter))
+            } else if (paddleY - ballRadius <= ballY && ballY <= paddleY + ballRadius
+                && paddleX - ballDiameter <= ballX && ballX <= paddleX + paddleWidth
+            ) {
+                ballSpeedX *= -1
+                ballX += ballSpeedX
             }
         }
 
     }
 
-    var m_IsEnd: Boolean = true  //메모리 누수 방지를 위한 핸들러
-    private fun m_Handler_ViewReload(p_DelayTime: Long) {
+    var isEnd: Boolean = true  //메모리 누수 방지를 위한 핸들러
+    private fun handlerViewReload(delayTime: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
             invalidate()
-            if(m_IsEnd)m_Handler_ViewReload(30)
-        }, p_DelayTime)
+            if (isEnd) handlerViewReload(30)
+        }, delayTime)
     }
 
-    var m_IsTouch : Boolean = false
-    private fun m_Handler_btnLeft(p_DelayTime: Long) {
+    var isTouch: Boolean = false
+    private fun handlerBtnLeft(delayTime: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
-            m_Paddle_X = m_Paddle_X - m_Paddle_W/20     //Paddle X의 값이 계속 변하므로 수정이 필요
-            if (m_Paddle_X < 0) {
-                m_Paddle_X = 0
-                m_IsTouch = false
+            paddleX = paddleX - paddleWidth / 20
+            if (paddleX < 0) {
+                paddleX = 0
+                isTouch = false
             }
-            if(m_IsTouch)m_Handler_btnLeft(30)
-        }, p_DelayTime)
+            if (isTouch) handlerBtnLeft(30)
+        }, delayTime)
     }
 
-    private fun m_Handler_btnRight(p_DelayTime: Long) {
+    private fun handlerBtnRight(delayTime: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
-            m_Paddle_X = m_Paddle_X + m_Paddle_W/20     //Paddle X의 값이 계속 변하므로 수정이 필요
-            if (m_Paddle_X >= m_ViewWidth - m_Paddle_W) {
-                m_Paddle_X = m_ViewWidth - m_Paddle_W
-                m_IsTouch = false
+            paddleX = paddleX + paddleWidth / 20
+            if (paddleX >= viewWidth - paddleWidth) {
+                paddleX = viewWidth - paddleWidth
+                isTouch = false
             }
-            if(m_IsTouch)m_Handler_btnRight(30)
-        }, p_DelayTime)
+            if (isTouch) handlerBtnRight(30)
+        }, delayTime)
     }
 }
