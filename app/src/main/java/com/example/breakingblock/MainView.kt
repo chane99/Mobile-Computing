@@ -21,11 +21,16 @@ class MainView(context: Context) : View(context) {
     var btnRightY: Int = 0         //오른쪽 버튼 Y좌표
     var paddleX: Int = 0          //패들 X좌표
     var paddleY: Int = 0          //패들 Y좌표
+    var m_Joystick_X: Int = 0        //조이스틱 X좌표
+    var m_Joystick_Y: Int = 0 //조이스틱 Y좌표
+    var m_Joystick_R: Int = 0
+    var m_Joystick_D: Int = 0
 
     var btnWidth: Int = 0             //버튼 넓이
     var btnHeight: Int = 0            //버튼 높이
     var paddleWidth: Int = 0        // 패들 넓이
     var paddleHeight: Int = 0        // 패들 높이
+    var m_Paddle_Speed:Int=0
 
     var mRectBtnLeft: Rect = Rect() //버튼 터치 영역
     var mRectBtnRight: Rect = Rect() //버튼 터치 영역
@@ -41,6 +46,15 @@ class MainView(context: Context) : View(context) {
 
     lateinit var m_Img_Block: Bitmap // 블럭 이미지
     val m_Arr_BlockList: ArrayList<Block> = ArrayList<Block>()
+    lateinit var m_Img_Joystick: Bitmap
+    lateinit var m_Img_JoystickLine: Bitmap
+    var m_Joystick_XBasic: Int = 0        //조이스틱 기준좌표
+    var m_Joystick_TouchX: Int = 0
+    var m_JoystickLine_X: Int = 0        //조이스틱 X좌표
+    var m_JoystickLine_Y: Int = 0
+    var m_JoystickLine_W: Int = 0
+    var m_JoystickLine_H: Int = 0
+    var m_RectJoystick: Rect = Rect()
 
     var isPlay: Boolean = false // 게임상태
 
@@ -62,19 +76,36 @@ class MainView(context: Context) : View(context) {
         canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
         canvas.drawBitmap(imgBtnLeft, btnLeftX.toFloat(), btnLeftY.toFloat(), null)
         canvas.drawBitmap(imgBtnRight, btnRightX.toFloat(), btnRightY.toFloat(), null)
+        canvas.drawBitmap(
+            m_Img_JoystickLine,
+            m_JoystickLine_X.toFloat(),
+            m_JoystickLine_Y.toFloat(),
+            null
+        )
+        canvas.drawBitmap(m_Img_Joystick, m_Joystick_X.toFloat(), m_Joystick_Y.toFloat(), null)
         // 블럭
         for (w_Block in m_Arr_BlockList) {
-            canvas.drawBitmap(m_Img_Block, w_Block.Block_X.toFloat(), w_Block.Block_Y.toFloat(), null)
+            canvas.drawBitmap(
+                m_Img_Block,
+                w_Block.Block_X.toFloat(),
+                w_Block.Block_Y.toFloat(),
+                null
+            )
         }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val touchX: Int = event?.x?.toInt() ?: 0  // 터치한 곳의 X좌표
+        var touchX: Int = event?.x?.toInt() ?: 0  // 터치한 곳의 X좌표
         val touchY: Int = event?.y?.toInt() ?: 0  // 터치한 곳의 Y좌표
         val wKeyAction: Int = event?.action ?: 0
 
         when (wKeyAction) {
             MotionEvent.ACTION_DOWN -> {
+                if (m_RectJoystick.contains(touchX, touchY)) {
+                    isTouch = true
+                    m_Joystick_TouchX = touchX
+
+                }
                 if (isPlay) {
                     if (mRectBtnLeft.contains(touchX, touchY)) { //왼쪽 버튼을 눌렀을때
                         isTouch = true
@@ -83,22 +114,33 @@ class MainView(context: Context) : View(context) {
                         isTouch = true
                         handlerBtnRight(0)
                     }
-                } else {
-                    if (mRectBtnLeft.contains(touchX, touchY)) { //왼쪽 버튼을 눌렀을때
-                        isPlay = true
-                        ballSpeedX = -ballSpeed
-                        ballSpeedY = -ballSpeed
-                    } else if (mRectBtnRight.contains(touchX, touchY)) {      //오른쪽 버튼을 눌렀을때
-                        isPlay = true
-                        ballSpeedX = ballSpeed
-                        ballSpeedY = -ballSpeed
-                    }
                 }
+
             }
             MotionEvent.ACTION_UP -> {
                 isTouch = false
+                m_Paddle_Speed=0
+                m_Joystick_X = m_Joystick_XBasic
+            }
+            MotionEvent.ACTION_MOVE -> {
+
+                if (isTouch) {
+                    m_Joystick_X = m_Joystick_XBasic + (touchX - m_Joystick_TouchX)
+                    if (m_Joystick_X <= m_JoystickLine_X-m_Joystick_R) {
+                        m_Joystick_X = m_JoystickLine_X-m_Joystick_R
+                    }
+                    if(m_Joystick_X >= m_JoystickLine_X+m_JoystickLine_W - m_Joystick_TouchX){
+                        m_Joystick_X=m_JoystickLine_X+m_JoystickLine_W- m_Joystick_TouchX
+                    }
+                    var m_Paddle_Speed=(m_Joystick_X-m_Joystick_XBasic)/2
+
+
+
+                }
             }
         }
+
+
         return true
     }
 
@@ -136,6 +178,22 @@ class MainView(context: Context) : View(context) {
         ballSpeed = ballRadius
         ballSpeedX = 0
         ballSpeedY = 0
+
+
+        //조이스틱 초기화
+        m_Img_Joystick=BitmapFactory.decodeResource(resources,R.drawable.btn_block_joystick)
+        m_Img_JoystickLine=BitmapFactory.decodeResource(resources,R.drawable.btn_block_joystickline)
+        m_Joystick_R=ballDiameter
+        m_Joystick_X=viewWidth/2 - m_Joystick_R
+        m_Joystick_XBasic=m_Joystick_X
+        m_Joystick_Y=btnLeftY+btnHeight/2 - m_Joystick_R
+        m_JoystickLine_W=m_Joystick_R*4
+        m_JoystickLine_H=m_Joystick_R/6
+        m_Joystick_X=viewWidth/2 -m_JoystickLine_W/2
+        m_JoystickLine_Y=m_Joystick_Y+m_Joystick_R-m_JoystickLine_H/2
+        m_Img_Joystick = Bitmap.createScaledBitmap( m_Img_Joystick, m_Joystick_R*2, m_Joystick_R*2, false)
+        m_Img_JoystickLine = Bitmap.createScaledBitmap( m_Img_JoystickLine,  m_JoystickLine_W,  m_JoystickLine_H, false)
+        m_RectJoystick= Rect(m_Joystick_X,m_Joystick_Y,m_Joystick_X+m_Joystick_Y+m_Joystick_R*2,m_Joystick_Y+m_Joystick_R*2)
 
         // 블럭 생성
         func_MakeBlock()
@@ -201,6 +259,9 @@ class MainView(context: Context) : View(context) {
                 && paddleY - ballDiameter <= ballY && ballY <= paddleY - ballRadius
             ) {
                 ballSpeedY *= -1
+                ballSpeedX +=m_Paddle_Speed
+                if(ballSpeedX>=ballDiameter)ballSpeedX=ballDiameter
+                if(ballSpeedX<= -ballDiameter)ballSpeedX= -ballDiameter
                 if (paddleY - ballDiameter <= ballY) ballY =
                     paddleY - ballDiameter - (ballY - (paddleY - ballDiameter))
             } else if (paddleY - ballRadius <= ballY && ballY <= paddleY + ballRadius
@@ -231,8 +292,25 @@ class MainView(context: Context) : View(context) {
     var isEnd: Boolean = true  //메모리 누수 방지를 위한 핸들러
     private fun handlerViewReload(delayTime: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
-            invalidate()
-            if (isEnd) handlerViewReload(30)
+            fun run(){
+                if(isTouch){
+                    paddleX +=m_Paddle_Speed
+                    if (paddleX < 0) {
+                        paddleX = 0
+                        m_Paddle_Speed=0
+
+                    }
+                    if (paddleX >= viewWidth - paddleWidth) {
+                        paddleX = viewWidth - paddleWidth
+                        m_Paddle_Speed=0
+                    }
+                }
+                if(!isPlay) ballX=paddleX+(paddleWidth/2 - ballRadius)
+                invalidate()
+                if (isEnd) handlerViewReload(30)
+            }
+
+
         }, delayTime)
     }
 
@@ -259,3 +337,4 @@ class MainView(context: Context) : View(context) {
         }, delayTime)
     }
 }
+
