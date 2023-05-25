@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.*
 import android.os.Handler
 import android.os.Looper
-import android.util.AttributeSet
-
 import android.view.MotionEvent
 import android.view.View
 
@@ -44,7 +42,7 @@ class GameView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(Color.YELLOW)
+        canvas.drawColor(Color.BLACK)
 
         func_BallMove()
         func_PaddleCheck()
@@ -219,12 +217,6 @@ class GameView(context: Context) : View(context) {
         }
     }
 
-
-
-
-
-
-
     // 블럭 충돌 확인
     private fun func_BlockCheck() {
         for (w_Block in m_Arr_BlockList) {
@@ -244,7 +236,7 @@ class GameView(context: Context) : View(context) {
     private fun handlerViewReload(delayTime: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
             invalidate()
-            if (isEnd) handlerViewReload(30)
+            if (isEnd) handlerViewReload(0)
         }, delayTime)
     }
 }
