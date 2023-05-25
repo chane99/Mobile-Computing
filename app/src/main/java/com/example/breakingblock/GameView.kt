@@ -4,10 +4,12 @@ import android.content.Context
 import android.graphics.*
 import android.os.Handler
 import android.os.Looper
+import android.util.AttributeSet
+
 import android.view.MotionEvent
 import android.view.View
 
-class MainView(context: Context) : View(context) {
+class GameView(context: Context) : View(context) {
     var viewWidth: Int = 0
     var viewHeight: Int = 0
 
