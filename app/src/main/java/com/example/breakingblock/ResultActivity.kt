@@ -16,7 +16,7 @@ class ResultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_result)
+        setContentView(binding.root)
 
         val intent = intent
         val nickName = intent.getStringExtra("nickName") // MainActivity로부터 닉네임 전달받음
