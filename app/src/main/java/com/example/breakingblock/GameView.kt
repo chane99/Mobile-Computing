@@ -185,7 +185,7 @@ class GameView(context: Context) : View(context) {
             val paddleCenterX = paddleX + paddleWidth / 2
 
             // 패들 길이 9등분한 길이
-            val intervalX = paddleWidth / 9
+            val intervalX = paddleWidth / 10
 
             // 공과 패들 충돌 시
             if (paddleX - ballRadius <= ballX && ballX <= paddleX + paddleWidth + ballRadius
@@ -210,18 +210,21 @@ class GameView(context: Context) : View(context) {
                     ballSpeedY = (ballSpeedY * 1.3).toFloat()
                 }
                 else if (ballX <= paddleX + intervalX * 5) {
-                    ballSpeedX = 0F
+                    ballSpeedX = -ballSpeed / 4
                     ballSpeedY = (ballSpeedY * 1.5).toFloat()
                 }
                 else if (ballX <= paddleX + intervalX * 6) {
-                    ballSpeedX = ballSpeed / 3
+                    ballSpeedX = ballSpeed / 4
                     ballSpeedY = (ballSpeedY * 1.3).toFloat()
                 }
                 else if (ballX <= paddleX + intervalX * 7) {
-                    ballSpeedX = ballSpeed / 2
+                    ballSpeedX = ballSpeed / 3
                     ballSpeedY = (ballSpeedY * 1.1).toFloat()
                 }
                 else if (ballX <= paddleX + intervalX * 8) {
+                    ballSpeedX = ballSpeed /2
+                }
+                else if (ballX <= paddleX + intervalX * 9) {
                     ballSpeedX = ballSpeed * 3 / 4
                 }
                 else {

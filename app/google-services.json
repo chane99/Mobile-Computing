@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265925804312",
+    "project_id": "breakingblock-eae30",
+    "storage_bucket": "breakingblock-eae30.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265925804312:android:ee0bfcf6ad6c4466615e6d",
+        "android_client_info": {
+          "package_name": "com.example.breakingblock"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZx3d3-LRwKqmTeQWWBMgyxwwLZL2MNQ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
