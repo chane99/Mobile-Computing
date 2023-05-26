@@ -2,4 +2,5 @@
     <string name="app_name">BreakingBlock</string>
     <string name="game_start">GAME START</string>
     <string name="ranking">Ranking</string>
+    <string name="default_web_client_id">default_web_client_id</string>
 </resources>

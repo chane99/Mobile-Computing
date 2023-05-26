@@ -14,4 +14,9 @@
         android:layout_height="wrap_content"
         android:text="@string/ranking"/>
 
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/btnGoogle"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>
