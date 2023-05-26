@@ -71,6 +71,7 @@ class MainActivity : Activity() {
                 resultLogin(account)
             } catch (e: ApiException) {
                 Log.d("TAGMING", "인증실패: ${e.statusCode}")
+                Toast.makeText(applicationContext, "실패", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -83,6 +84,7 @@ class MainActivity : Activity() {
                 Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
                 val intent = Intent(applicationContext, ResultActivity::class.java)
                 intent.putExtra("nickName", account?.displayName)
+                Log.d("TAGMING", "${account?.displayName}")
                 intent.putExtra("photoURL", account?.photoUrl?.toString()) // 특정 자료형을 String 형태로 변환시킴
                 startActivity(intent)
 
