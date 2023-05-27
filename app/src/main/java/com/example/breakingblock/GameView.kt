@@ -87,10 +87,10 @@ class GameView(context: Context) : View(context) {
             val scoreText = "점수: $score"
             val scorePaint = Paint()
             scorePaint.color = Color.RED
-            scorePaint.textSize = 50f
+            scorePaint.textSize = 70f
             val textWidth = scorePaint.measureText(scoreText)
             val x = canvas.width - textWidth - 10f
-            val y = 50f
+            val y = 70f
             canvas.drawText(scoreText, x, y, scorePaint)
         }
 
@@ -197,6 +197,8 @@ class GameView(context: Context) : View(context) {
     // 벽돌 생성 - 빨간색: 3번 충돌 후 깨짐, 파란색: 2번 충돌 후 깨짐, 노란색: 1번 충돌 후 깨짐
     // 빨간색 -> 파란색 -> 노란색 순으로 색깔 변화
     private fun func_MakeBlock() {
+        val blockRowCount = 7       // 행의 개수
+        val blockColumnCount = 7    // 열의 개수
         val w_Block_W = viewWidth / 7
         val w_Block_H = w_Block_W / 3
 
@@ -209,22 +211,23 @@ class GameView(context: Context) : View(context) {
         m_Img_Block3 = Bitmap.createScaledBitmap(m_Img_Block3, w_Block_W, w_Block_H, false)
 
         m_Arr_BlockList.clear()
-        for (i in 0 until 3) {
-            val w_Block_Y = w_Block_H * 2 + w_Block_H * i
-            for (j in 0 until 7) {
-                val w_Block_X = w_Block_W * j
-                val w_Block: Block
+        for (row in 0 until blockRowCount) {
+            val w_Block_Y = w_Block_H * row
+            val offsetY = w_Block_Y + 120   // Y좌표에 50을 더해 블록을 아래로 이동
 
-                // Y좌표에 50을 더해 블록을 아래로 이동
-                val offsetY = w_Block_Y + 50
-
-                if (i == 0) {
-                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, m_Img_Block3, 3)
-                } else if (i == 1) {
-                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, m_Img_Block2, 2)
-                } else {
-                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, m_Img_Block1, 1)
+            val blockColor = when (row) {
+                0 -> m_Img_Block3    // 빨간색 블록
+                1, 2 -> m_Img_Block2 // 파란색 블록
+                else -> m_Img_Block1  // 노란색 블록
+            }
+            for (column in 0 until blockColumnCount) {
+                val w_Block_X = w_Block_W * column
+                val collisionCount = when (row) {
+                    0 -> 3    // 빨간색 블록
+                    1, 2 -> 2 // 파란색 블록
+                    else -> 1  // 노란색 블록
                 }
+                val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
                 m_Arr_BlockList.add(w_Block)
             }
         }
