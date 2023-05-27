@@ -303,25 +303,33 @@ class GameView(context: Context) : View(context) {
 
     // 블럭 충돌 확인
     private fun func_BlockCheck() {
-        val iterator = m_Arr_BlockList.iterator()
-        while (iterator.hasNext()) {
-            val w_Block = iterator.next()
+        var collisionOccurred = false
+        val blocksToRemove = ArrayList<Block>()
+
+        for (w_Block in m_Arr_BlockList) {
             val w_BlockCheck = w_Block.IsClash(ballX, ballY, ballDiameter, ballRadius)
             when (w_BlockCheck) {
                 0 -> continue
                 1, 2 -> {
                     ballSpeedX *= -1
                     w_Block.collisionCount--
+                    collisionOccurred = true
                 }
                 3, 4 -> {
                     ballSpeedY *= -1
                     w_Block.collisionCount--
+                    collisionOccurred = true
                 }
             }
             if (w_Block.collisionCount <= 0) {
-                iterator.remove()
+                blocksToRemove.add(w_Block)
             }
-            break
+        }
+
+        m_Arr_BlockList.removeAll(blocksToRemove)
+
+        if (collisionOccurred) {
+            invalidate()
         }
     }
 
