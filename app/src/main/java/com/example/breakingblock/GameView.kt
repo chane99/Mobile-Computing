@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 
 class GameView(context: Context) : View(context) {
+    var lives: Int = 3
     var viewWidth: Int = 0
     var viewHeight: Int = 0
 
@@ -44,51 +45,97 @@ class GameView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(Color.BLACK)
+        if (canvas != null) {
+            canvas.drawColor(Color.BLACK)
 
-        func_BallMove()
-        func_PaddleCheck()
-        func_BlockCheck()
+            func_BallMove()
+            func_PaddleCheck()
+            func_BlockCheck()
 
-        imgBall?.let { canvas.drawBitmap(it, ballX.toFloat(), ballY.toFloat(), null) }
-        canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
+            imgBall?.let { canvas.drawBitmap(it, ballX.toFloat(), ballY.toFloat(), null) }
+            canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
 
-        for (w_Block in m_Arr_BlockList) {
-            val blockImg = when (w_Block.collisionCount) {
-                3 -> m_Img_Block3
-                2 -> m_Img_Block2
-                else -> m_Img_Block1
+            for (w_Block in m_Arr_BlockList) {
+                val blockImg = when (w_Block.collisionCount) {
+                    3 -> m_Img_Block3
+                    2 -> m_Img_Block2
+                    else -> m_Img_Block1
+                }
+                canvas.drawBitmap(
+                    blockImg,
+                    w_Block.Block_X.toFloat(),
+                    w_Block.Block_Y.toFloat(),
+                    null
+                )
             }
-            canvas.drawBitmap(
-                blockImg,
-                w_Block.Block_X.toFloat(),
-                w_Block.Block_Y.toFloat(),
-                null
-            )
+
+            // 초기화
+            val heartDrawable = resources.getDrawable(R.drawable.life, null)
+            val heartWidth = 100
+            val heartHeight = 100
+
+            for (i in 0 until lives) {
+                val xPosition = i * (heartWidth + 10) // 10은 가로 간격을 의미합니다. 원하는 대로 조정하세요.
+                heartDrawable.setBounds(xPosition, 0, xPosition + heartWidth, heartHeight)
+                heartDrawable.draw(canvas)
+            }
         }
+
+
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val touchX: Int = event?.x?.toInt() ?: 0
         val wKeyAction: Int = event?.action ?: 0
 
+        if (lives <= 0) {
+            if (wKeyAction == MotionEvent.ACTION_DOWN) {
+                lives = 3 // Reset lives
+                func_Setting() // Reset everything
+            }
+            return true
+        }
+
         when (wKeyAction) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                if (!isPlay) {
+                    // 공이 패들의 중심을 따라가도록 계산
+                    ballX = (touchX - ballRadius).toFloat()
+                    if (ballX < 0) {
+                        ballX = 0f
+                    } else if (ballX > viewWidth - ballDiameter) {
+                        ballX = (viewWidth - ballDiameter).toFloat()
+                    }
+                    paddleX = (ballX + ballRadius - paddleWidth / 2).toInt()
+
+                    // 패들이 화면을 벗어나지 않도록 처리
+                    if (paddleX < 0) {
+                        paddleX = 0
+                    } else if (paddleX > viewWidth - paddleWidth) {
+                        paddleX = viewWidth - paddleWidth
+                    }
+                } else {
+                    paddleX = touchX - paddleWidth / 2
+                    if (paddleX < 0) {
+                        paddleX = 0
+                    } else if (paddleX > viewWidth - paddleWidth) {
+                        paddleX = viewWidth - paddleWidth
+                    }
+                }
+            }
+            MotionEvent.ACTION_UP -> {
                 if (!isPlay) {
                     isPlay = true
                     ballSpeedX = if (touchX < viewWidth / 2) -ballSpeed else ballSpeed
                     ballSpeedY = -ballSpeed
                 }
-                paddleX = touchX - paddleWidth / 2
-                if (paddleX < 0) {
-                    paddleX = 0
-                } else if (paddleX > viewWidth - paddleWidth) {
-                    paddleX = viewWidth - paddleWidth
-                }
             }
         }
         return true
     }
+
+
+
 
     private fun func_Setting() {
         imgPaddle = BitmapFactory.decodeResource(resources, R.drawable.block_paddle)
@@ -101,7 +148,7 @@ class GameView(context: Context) : View(context) {
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
         ballDiameter = paddleHeight
         ballRadius = ballDiameter / 2
-        ballX = (viewWidth / 2 - ballRadius).toFloat()
+        ballX = (paddleX + paddleWidth / 2 - ballRadius).toFloat()
         ballY = (paddleY - ballDiameter).toFloat()
         imgBall = Bitmap.createScaledBitmap(tempBitmap, ballDiameter, ballDiameter, false)
 
@@ -115,17 +162,24 @@ class GameView(context: Context) : View(context) {
     }
 
     private fun func_Reset() {
-        isPlay = false
+        lives -= 1
+        if (lives <= 0) {
+            isPlay = false
+            // 게임 종료 알림 또는 처리 작업을 여기에 추가합니다
+        } else {
+            isPlay = false
 
-        ballSpeedX = 0F
-        ballSpeedY = 0F
+            ballSpeedX = 0F
+            ballSpeedY = 0F
 
-        paddleX = viewWidth / 2 - paddleWidth / 2
-        paddleY = viewHeight - paddleHeight * 2
+            paddleX = viewWidth / 2 - paddleWidth / 2
+            paddleY = viewHeight - paddleHeight * 2
 
-        ballX = (viewWidth / 2 - ballRadius).toFloat()
-        ballY = (paddleY - ballDiameter).toFloat()
+            ballX = (viewWidth / 2 - ballRadius).toFloat()
+            ballY = (paddleY - ballDiameter).toFloat()
+        }
     }
+
 
     // 벽돌 생성 - 빨간색: 3번 충돌 후 깨짐, 파란색: 2번 충돌 후 깨짐, 노란색: 1번 충돌 후 깨짐
     // 빨간색 -> 파란색 -> 노란색 순으로 색깔 변화
@@ -147,12 +201,16 @@ class GameView(context: Context) : View(context) {
             for (j in 0 until 7) {
                 val w_Block_X = w_Block_W * j
                 val w_Block: Block
+
+                // Y좌표에 50을 더해 블록을 아래로 이동
+                val offsetY = w_Block_Y + 50
+
                 if (i == 0) {
-                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, w_Block_Y, m_Img_Block3, 3)
+                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, m_Img_Block3, 3)
                 } else if (i == 1) {
-                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, w_Block_Y, m_Img_Block2, 2)
+                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, m_Img_Block2, 2)
                 } else {
-                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, w_Block_Y, m_Img_Block1, 1)
+                    w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, m_Img_Block1, 1)
                 }
                 m_Arr_BlockList.add(w_Block)
             }
