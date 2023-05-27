@@ -36,6 +36,8 @@ class GameView(context: Context) : View(context) {
 
     var isPlay: Boolean = false
 
+    var score: Int = 0 // 점수 초기화
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         viewHeight = h
@@ -45,6 +47,7 @@ class GameView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
         if (canvas != null) {
             canvas.drawColor(Color.BLACK)
 
@@ -79,6 +82,16 @@ class GameView(context: Context) : View(context) {
                 heartDrawable.setBounds(xPosition, 0, xPosition + heartWidth, heartHeight)
                 heartDrawable.draw(canvas)
             }
+
+            // 점수 표시
+            val scoreText = "점수: $score"
+            val scorePaint = Paint()
+            scorePaint.color = Color.RED
+            scorePaint.textSize = 50f
+            val textWidth = scorePaint.measureText(scoreText)
+            val x = canvas.width - textWidth - 10f
+            val y = 50f
+            canvas.drawText(scoreText, x, y, scorePaint)
         }
 
 
@@ -323,6 +336,7 @@ class GameView(context: Context) : View(context) {
             }
             if (w_Block.collisionCount <= 0) {
                 blocksToRemove.add(w_Block)
+                score += 1 // 블럭이 사라질 때마다 점수 1점 추가
             }
         }
 
