@@ -3,27 +3,35 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:layout_gravity="center"
+    android:paddingHorizontal="60dp"
+    android:paddingVertical="80dp">
+
     <TextView
         android:id="@+id/result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/score_label"
-        android:textSize="30dp"/>
+        android:textSize="50dp"
+        android:paddingVertical="50dp"/>
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/save"/>
+        android:layout_gravity="center"
+        android:text="점수 저장"/>
     <Button
         android:id="@+id/exitBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/exit"/>
+        android:layout_gravity="center"
+        android:text="메인화면으로 이동"/>
     <Button
         android:id="@+id/retryBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/retry"/>
+        android:layout_gravity="center"
+        android:text="게임 다시하기"/>
 
 </LinearLayout>
