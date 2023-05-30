@@ -24,5 +24,13 @@ class ResultActivity : AppCompatActivity() {
 
         binding.tvResult.text = nickName // 닉네임 텍스트를 텍스트 뷰에 설정
         Glide.with(this).load(photoURL).into(binding.ivProfile) // 프로필 URL을 이미지 뷰에 설정
+
+        val score = intent.getIntExtra("score", 0)
+        binding.score.text = getString(R.string.score_label, score)
+
+        binding.save.setOnClickListener {
+            // 점수 db에 저장하는 기능 추가 필요
+        }
+
     }
 }

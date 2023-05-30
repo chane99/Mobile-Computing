@@ -10,20 +10,47 @@
         android:id="@+id/tv_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="54dp"
         android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/score"
+        app:layout_constraintStart_toStartOf="@+id/iv_profile"
+        app:layout_constraintTop_toBottomOf="@+id/iv_profile" />
 
     <ImageView
         android:id="@+id/iv_profile"
         android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="189dp"
+        android:layout_marginBottom="88dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_result"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_launcher_foreground"
-        tools:layout_editor_absoluteY="189dp"
         tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:text="0"
+        android:textSize="30dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_result" />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="205dp"
+        android:text="기록 저장하기"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score" />
 </androidx.constraintlayout.widget.ConstraintLayout>
