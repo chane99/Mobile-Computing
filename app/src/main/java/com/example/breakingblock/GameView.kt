@@ -7,14 +7,23 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
-import androidx.core.content.ContextCompat.startActivity
+import androidx.appcompat.app.AppCompatActivity
+
 
 class GameView(context: Context) : View(context) {
+    private val myContext: Context = context
+    var ballSpeed: Float = 0F
+    var ballSpeedX: Float = 0F
+    var ballSpeedY: Float = 0F
+    var savedBallSpeedX: Float = 0F
+    var savedBallSpeedY: Float = 0F
+
     var lives: Int = 3
     var viewWidth: Int = 0
     var viewHeight: Int = 0
 
     lateinit var imgPaddle: Bitmap
+    lateinit var pauseBtn: Bitmap
 
     var paddleX: Int = 0
     var paddleY: Int = 0
@@ -27,9 +36,12 @@ class GameView(context: Context) : View(context) {
     var ballY: Float = 0F
     var ballDiameter: Int = 0
     var ballRadius: Int = 0
-    var ballSpeed: Float = 0F
-    var ballSpeedX: Float = 0F
-    var ballSpeedY: Float = 0F
+
+    var pauseBtnWidth : Int = 0
+    var pauseBtnHeight: Int = 0
+    var pauseBtnX : Int = 0
+    var pauseBtnY : Int = 0
+
 
     lateinit var m_Img_Block1: Bitmap
     lateinit var m_Img_Block2: Bitmap
@@ -50,57 +62,74 @@ class GameView(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        if (canvas != null) {
-            canvas.drawColor(Color.BLACK)
+        canvas.drawColor(Color.BLACK)
+        func_BallMove()
+        func_PaddleCheck()
+        func_BlockCheck()
 
-            func_BallMove()
-            func_PaddleCheck()
-            func_BlockCheck()
+        imgBall?.let { canvas.drawBitmap(it, ballX, ballY, null) }
+        canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
+        canvas.drawBitmap(pauseBtn,pauseBtnX.toFloat(),pauseBtnY.toFloat(),null)
 
-            imgBall?.let { canvas.drawBitmap(it, ballX.toFloat(), ballY.toFloat(), null) }
-            canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
-
-            for (w_Block in m_Arr_BlockList) {
-                val blockImg = when (w_Block.collisionCount) {
-                    3 -> m_Img_Block3
-                    2 -> m_Img_Block2
-                    else -> m_Img_Block1
-                }
-                canvas.drawBitmap(
-                    blockImg,
-                    w_Block.Block_X.toFloat(),
-                    w_Block.Block_Y.toFloat(),
-                    null
-                )
+        for (w_Block in m_Arr_BlockList) {
+            val blockImg = when (w_Block.collisionCount) {
+                3 -> m_Img_Block3
+                2 -> m_Img_Block2
+                else -> m_Img_Block1
             }
-
-            // 초기화
-            val heartDrawable = resources.getDrawable(R.drawable.life, null)
-            val heartWidth = 100
-            val heartHeight = 100
-
-            for (i in 0 until lives) {
-                val xPosition = i * (heartWidth + 10) // 10은 가로 간격을 의미합니다. 원하는 대로 조정하세요.
-                heartDrawable.setBounds(xPosition, 0, xPosition + heartWidth, heartHeight)
-                heartDrawable.draw(canvas)
-            }
-
-            // 점수 표시
-            val scoreText = "점수: $score"
-            val scorePaint = Paint()
-            scorePaint.color = Color.RED
-            scorePaint.textSize = 70f
-            val textWidth = scorePaint.measureText(scoreText)
-            val x = canvas.width - textWidth - 10f
-            val y = 70f
-            canvas.drawText(scoreText, x, y, scorePaint)
+            canvas.drawBitmap(
+                blockImg,
+                w_Block.Block_X.toFloat(),
+                w_Block.Block_Y.toFloat(),
+                null
+            )
         }
+
+        // 초기화
+        val heartDrawable = resources.getDrawable(R.drawable.life, null)
+        val heartWidth = 100
+        val heartHeight = 100
+
+        for (i in 0 until lives) {
+            val xPosition = i * (heartWidth + 10) // 10은 가로 간격을 의미합니다. 원하는 대로 조정하세요.
+            heartDrawable.setBounds(xPosition, 0, xPosition + heartWidth, heartHeight)
+            heartDrawable.draw(canvas)
+        }
+
+        // 점수 표시
+        val scoreText = "점수: $score"
+        val scorePaint = Paint()
+        scorePaint.color = Color.RED
+        scorePaint.textSize = 70f
+        val textWidth = scorePaint.measureText(scoreText)
+        val x = (width - textWidth) / 2
+        val y = 70f
+        canvas.drawText(scoreText, x, y, scorePaint)
 
 
     }
+    //일시정지시 화면을 보여주는 메소드
+    fun showCustomDialog() {
+        val dialogFragment = PauseDialogFragment()
+        dialogFragment.show((context as AppCompatActivity).supportFragmentManager, "PauseDialog")
+        dialogFragment.setOnContinueClickListener {
+            isPlay = true
+            ballSpeedX = savedBallSpeedX
+            ballSpeedY = savedBallSpeedY
+        }
+        dialogFragment.setOnExitClickListener {
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+        }
+        dialogFragment.setOnRetryClickListener {
+            func_Setting()
+        }
+    }
+
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val touchX: Int = event?.x?.toInt() ?: 0
+        val touchY: Int = event?.y?.toInt() ?: 0
         val wKeyAction: Int = event?.action ?: 0
 
         if (lives <= 0) {
@@ -111,35 +140,47 @@ class GameView(context: Context) : View(context) {
             return true
         }
 
+
         when (wKeyAction) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                if (!isPlay) {
-                    // 공이 패들의 중심을 따라가도록 계산
-                    ballX = (touchX - ballRadius).toFloat()
-                    if (ballX < 0) {
-                        ballX = 0f
-                    } else if (ballX > viewWidth - ballDiameter) {
-                        ballX = (viewWidth - ballDiameter).toFloat()
-                    }
-                    paddleX = (ballX + ballRadius - paddleWidth / 2).toInt()
+                // pause 버튼의 영역이 눌렸는지 확인
+                if (touchX >= pauseBtnX && touchX <= pauseBtnX + pauseBtnWidth &&
+                    touchY >= pauseBtnY && touchY <= pauseBtnY + pauseBtnHeight) {
+                    savedBallSpeedY = ballSpeedY
+                    savedBallSpeedX = ballSpeedX
+                    isPlay = false
+                    showCustomDialog()
 
-                    // 패들이 화면을 벗어나지 않도록 처리
-                    if (paddleX < 0) {
-                        paddleX = 0
-                    } else if (paddleX > viewWidth - paddleWidth) {
-                        paddleX = viewWidth - paddleWidth
-                    }
                 } else {
-                    paddleX = touchX - paddleWidth / 2
-                    if (paddleX < 0) {
-                        paddleX = 0
-                    } else if (paddleX > viewWidth - paddleWidth) {
-                        paddleX = viewWidth - paddleWidth
+                    if (!isPlay) {
+                        // 공이 패들의 중심을 따라가도록 계산
+                        ballX = (touchX - ballRadius).toFloat()
+                        if (ballX < 0) {
+                            ballX = 0f
+                        } else if (ballX > viewWidth - ballDiameter) {
+                            ballX = (viewWidth - ballDiameter).toFloat()
+                        }
+                        paddleX = (ballX + ballRadius - paddleWidth / 2).toInt()
+
+                        // 패들이 화면을 벗어나지 않도록 처리
+                        if (paddleX < 0) {
+                            paddleX = 0
+                        } else if (paddleX > viewWidth - paddleWidth) {
+                            paddleX = viewWidth - paddleWidth
+                        }
+                    } else {
+                        paddleX = touchX - paddleWidth / 2
+                        if (paddleX < 0) {
+                            paddleX = 0
+                        } else if (paddleX > viewWidth - paddleWidth) {
+                            paddleX = viewWidth - paddleWidth
+                        }
                     }
                 }
             }
             MotionEvent.ACTION_UP -> {
-                if (!isPlay) {
+                if (!isPlay && !(touchX >= pauseBtnX && touchX <= pauseBtnX + pauseBtnWidth &&
+                            touchY >= pauseBtnY && touchY <= pauseBtnY + pauseBtnHeight)) {
                     isPlay = true
                     ballSpeedX = if (touchX < viewWidth / 2) -ballSpeed else ballSpeed
                     ballSpeedY = -ballSpeed
@@ -147,6 +188,7 @@ class GameView(context: Context) : View(context) {
             }
         }
         return true
+
     }
 
 
@@ -154,11 +196,19 @@ class GameView(context: Context) : View(context) {
 
     private fun func_Setting() {
         imgPaddle = BitmapFactory.decodeResource(resources, R.drawable.block_paddle)
+        pauseBtn = BitmapFactory.decodeResource(resources, R.drawable.pause_btn)
         paddleWidth = viewWidth / 5
         paddleHeight = paddleWidth / 4
         paddleX = viewWidth / 2 - paddleWidth / 2
         paddleY = viewHeight - paddleHeight * 2
+        pauseBtnWidth = (viewWidth / 10)
+        pauseBtnHeight= pauseBtnWidth
+        pauseBtnX = viewWidth - pauseBtnWidth
+        pauseBtnY = 0
         imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
+        pauseBtn = Bitmap.createScaledBitmap(pauseBtn, pauseBtnWidth, pauseBtnHeight, false)
+        lives = 3
+        score = 0
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
         ballDiameter = paddleHeight
@@ -363,4 +413,6 @@ class GameView(context: Context) : View(context) {
             if (isEnd) handlerViewReload(0)
         }, delayTime)
     }
+
+
 }
