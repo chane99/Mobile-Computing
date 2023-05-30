@@ -1,11 +1,13 @@
 package com.example.breakingblock
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.ContextCompat.startActivity
 
 class GameView(context: Context) : View(context) {
     var lives: Int = 3
@@ -179,6 +181,9 @@ class GameView(context: Context) : View(context) {
         if (lives <= 0) {
             isPlay = false
             // 게임 종료 알림 또는 처리 작업을 여기에 추가합니다
+            val nextIntent = Intent(context, ResultActivity::class.java)
+            nextIntent.putExtra("score", score)
+            context.startActivity(nextIntent)
         } else {
             isPlay = false
 
