@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 
@@ -222,10 +223,20 @@ class GameView(context: Context) : View(context) {
         lives -= 1
         if (lives <= 0) {
             isPlay = false
-            // 게임 종료 알림 또는 처리 작업을 여기에 추가합니다
-            val nextIntent = Intent(context, ResultActivity::class.java)
-            nextIntent.putExtra("score", score)
-            context.startActivity(nextIntent)
+
+            val dialogFragment = FinishDialogFragment(score)
+            dialogFragment.show((context as AppCompatActivity).supportFragmentManager, "FinishDialog")
+
+            dialogFragment.setOnSaveClickListener {
+                // 점수 db에 저장하는 기능 들어갈 부분
+            }
+            dialogFragment.setOnExitClickListener {
+                val intent = Intent(context, MainActivity::class.java)
+                context.startActivity(intent)
+            }
+            dialogFragment.setOnRetryClickListener {
+                func_Setting()
+            }
         } else {
             isPlay = false
 
