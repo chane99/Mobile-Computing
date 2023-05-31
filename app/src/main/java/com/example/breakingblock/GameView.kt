@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 class GameView(context: Context) : View(context) {
-    private val myContext: Context = context
     var ballSpeed: Float = 0F
     var ballSpeedX: Float = 0F
     var ballSpeedY: Float = 0F
@@ -140,9 +139,8 @@ class GameView(context: Context) : View(context) {
             return true
         }
 
-
         when (wKeyAction) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+            MotionEvent.ACTION_DOWN -> {
                 // pause 버튼의 영역이 눌렸는지 확인
                 if (touchX >= pauseBtnX && touchX <= pauseBtnX + pauseBtnWidth &&
                     touchY >= pauseBtnY && touchY <= pauseBtnY + pauseBtnHeight) {
@@ -150,31 +148,23 @@ class GameView(context: Context) : View(context) {
                     savedBallSpeedX = ballSpeedX
                     isPlay = false
                     showCustomDialog()
-
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (!isPlay) {
+                    paddleX = touchX - paddleWidth / 2
+                    if (paddleX < 0) {
+                        paddleX = 0
+                    } else if (paddleX > viewWidth - paddleWidth) {
+                        paddleX = viewWidth - paddleWidth
+                    }
+                    ballX = (paddleX + paddleWidth / 2 - ballRadius).toFloat()
                 } else {
-                    if (!isPlay) {
-                        // 공이 패들의 중심을 따라가도록 계산
-                        ballX = (touchX - ballRadius).toFloat()
-                        if (ballX < 0) {
-                            ballX = 0f
-                        } else if (ballX > viewWidth - ballDiameter) {
-                            ballX = (viewWidth - ballDiameter).toFloat()
-                        }
-                        paddleX = (ballX + ballRadius - paddleWidth / 2).toInt()
-
-                        // 패들이 화면을 벗어나지 않도록 처리
-                        if (paddleX < 0) {
-                            paddleX = 0
-                        } else if (paddleX > viewWidth - paddleWidth) {
-                            paddleX = viewWidth - paddleWidth
-                        }
-                    } else {
-                        paddleX = touchX - paddleWidth / 2
-                        if (paddleX < 0) {
-                            paddleX = 0
-                        } else if (paddleX > viewWidth - paddleWidth) {
-                            paddleX = viewWidth - paddleWidth
-                        }
+                    paddleX = touchX - paddleWidth / 2
+                    if (paddleX < 0) {
+                        paddleX = 0
+                    } else if (paddleX > viewWidth - paddleWidth) {
+                        paddleX = viewWidth - paddleWidth
                     }
                 }
             }
@@ -188,8 +178,10 @@ class GameView(context: Context) : View(context) {
             }
         }
         return true
-
     }
+
+
+
 
 
 

@@ -24,17 +24,17 @@ class PauseDialogFragment : DialogFragment() {
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         binding.retryBtn.setOnClickListener {
-            retryClickListener?.invoke()
             dismiss()
-
+            retryClickListener?.invoke()
         }
         binding.exitBtn.setOnClickListener {
-            exitClickListener?.invoke()
             dismiss()
+            exitClickListener?.invoke()
+
         }
         binding.continueBtn.setOnClickListener {
-            continueClickListener?.invoke()
             dismiss()
+            continueClickListener?.invoke()
         }
 
         return view

@@ -23,12 +23,14 @@ class MainActivity : Activity() {
     private lateinit var auth: FirebaseAuth // 파이어베이스 인증 객체
     private lateinit var googleSignInClient: GoogleSignInClient // 구글 로그인 클라이언트 객체
     private val REQ_SIGN_GOOGLE = 100
+    private var backPressedTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         gameView = GameView(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
 
         // 파이어베이스 인증 객체 초기화
         auth = FirebaseAuth.getInstance()
@@ -112,5 +114,15 @@ class MainActivity : Activity() {
         bgmPlayer?.reset() // 미디어 플레이어 초기화
         bgmPlayer?.release() // 리소스 해제
     }
+    override fun onBackPressed() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - backPressedTime > 2000) {
+            Toast.makeText(this, "한번 더 누르면 게임을 종료합니다", Toast.LENGTH_SHORT).show()
+            backPressedTime = currentTime
+        } else {
+            finishAffinity() // 앱을 종료합니다.
+        }
+    }
+
 
 }
