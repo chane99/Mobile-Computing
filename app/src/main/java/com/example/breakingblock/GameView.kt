@@ -62,7 +62,7 @@ class GameView(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawColor(Color.BLACK)
+        canvas.drawColor(Color.WHITE)
         func_BallMove()
         func_PaddleCheck()
         func_BlockCheck()
@@ -249,6 +249,7 @@ class GameView(context: Context) : View(context) {
             ballX = (viewWidth / 2 - ballRadius).toFloat()
             ballY = (paddleY - ballDiameter).toFloat()
         }
+
     }
 
 

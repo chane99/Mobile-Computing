@@ -7,17 +7,17 @@
 
     <Button
         android:id="@+id/exitBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/exit"/>
     <Button
         android:id="@+id/retryBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/retry"/>
     <Button
         android:id="@+id/continueBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="CONTINUE"/>
 
