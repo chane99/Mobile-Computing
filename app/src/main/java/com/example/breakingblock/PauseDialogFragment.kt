@@ -20,7 +20,8 @@ class PauseDialogFragment : DialogFragment() {
         _binding = PauseLayoutBinding.inflate(inflater, container, false)
         val view = binding.root
         dialog?.setCancelable(false)
-        // 레이아웃 배경을 투명하게 해줌, 필수 아님
+
+        // 레이아웃 배경을 투명하게
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         binding.retryBtn.setOnClickListener {
