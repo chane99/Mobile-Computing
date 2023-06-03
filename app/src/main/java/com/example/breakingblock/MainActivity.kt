@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.breakingblock.databinding.ActivityMainBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
-import com.example.breakingblock.roomdb.UserAdapter
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -30,7 +29,6 @@ class MainActivity : Activity() {
     private lateinit var googleSignInClient: GoogleSignInClient // 구글 로그인 클라이언트 객체
     private val REQ_SIGN_GOOGLE = 100
     private var backPressedTime: Long = 0
-    private lateinit var db: ScoreDatabase
     private lateinit var adapter: UserAdapter
 
 
@@ -40,13 +38,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        CoroutineScope(Dispatchers.Main).launch {
-            db = withContext(Dispatchers.IO) { ScoreDatabase.getInstance(applicationContext) }
-            val userList = withContext(Dispatchers.IO) { db!!.scoreDao().selectAll() }
-            Log.d("Data check", "User List: $userList")
-            adapter = UserAdapter(userList)
-        }
-
+        var db = ScoreDatabase.getInstance(applicationContext)
 
 
         // 파이어베이스 인증 객체 초기화
@@ -82,31 +74,27 @@ class MainActivity : Activity() {
 
         // 로컬 랭킹 버튼 클릭시
         binding.localrank.setOnClickListener {
+            adapter = UserAdapter(mutableListOf())
             CoroutineScope(Dispatchers.Main).launch {
                 val dialogView = layoutInflater.inflate(R.layout.local_ranking_view, null)
                 val dialog = AlertDialog.Builder(this@MainActivity)
                     .setView(dialogView)
                     .create()
-
                 val recyclerView = dialogView.findViewById<RecyclerView>(R.id.localrank_recycler_view)
+                val userList =CoroutineScope(Dispatchers.IO).async {
+                    db!!.scoreDao().selectAll()
+                }.await()
+                Log.d("메인코드", "Data 세트: $userList")
+                withContext(Dispatchers.Main) {
+                    adapter.setList(userList) // 기존 adapter에 새로운 데이터 목록 설정
+                    recyclerView.adapter = adapter
+                }
                 recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
                 recyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity, LinearLayoutManager.VERTICAL))
 
-                val userList = withContext(Dispatchers.IO) { db!!.scoreDao().selectAll() }
-                adapter.setList(userList) // 기존 adapter에 새로운 데이터 목록 설정
-
-                recyclerView.adapter = adapter
                 dialog.show()
             }
         }
-
-
-
-
-
-
-
-
     }
 
 

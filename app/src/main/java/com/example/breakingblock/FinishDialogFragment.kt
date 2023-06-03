@@ -8,15 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.breakingblock.databinding.FinishLayoutBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
-import com.example.breakingblock.roomdb.user
+import com.example.breakingblock.roomdb.User
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FinishDialogFragment(private val score: Int) : DialogFragment() {
     private var _binding: FinishLayoutBinding? = null
@@ -39,16 +41,16 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
     ): View? {
         _binding = FinishLayoutBinding.inflate(inflater, container, false)
         val view = binding.root
-        db = Room.databaseBuilder(requireContext(), ScoreDatabase::class.java, "scores-db").build()
         dialog?.setCancelable(false)
         // 레이아웃 배경을 투명하게 해줌, 필수 아님
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
+        db = ScoreDatabase.getInstance(requireContext().applicationContext)!!
         resultTextView = binding.result
 
         binding.saveBtn.setOnClickListener {
-            val scoreEntity = user(name = "kingmingseo", score = score)
+            val scoreEntity = User(name = "kingmingseo", score = score)
             insertScore(scoreEntity)
+            selectAllUsers()
             dismiss()
         }
 
@@ -82,17 +84,25 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         retryClickListener = listener
     }
 
-    private fun insertScore(scoreEntity: user) {
-        val scoreDao = db.scoreDao()
-
-        // 코루틴을 사용하여 비동기로 insert 수행
-        lifecycleScope.launch {
-            val newRowId = scoreDao.insert(scoreEntity)
-            Log.d("DB_INSERT", "New row ID: $newRowId") // 로그 추가
-
-            Toast.makeText(requireContext(), "Score saved", Toast.LENGTH_SHORT).show()
-
-
+    private fun insertScore(user: User) {
+        CoroutineScope(Dispatchers.Main).launch {
+            withContext(Dispatchers.IO) {
+                db.scoreDao().insert(user)
+            }
         }
     }
+    private fun selectAllUsers() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val users = withContext(Dispatchers.IO) {
+                db.scoreDao().selectAll()
+            }
+            // 선택된 사용자들에 대한 처리
+            users.forEach { user ->
+                // 사용자 정보 처리
+                // 예: Log 출력
+                Log.d("User", "Name: ${user.name}, Score: ${user.score}")
+            }
+        }
+    }
+
 }
