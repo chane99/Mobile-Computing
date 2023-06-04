@@ -1,5 +1,6 @@
 package com.example.breakingblock.roomdb
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
@@ -13,7 +14,7 @@ interface ScoreDao {
     @Delete
     fun delete(user: User)
 
-    @Query("SELECT * FROM User")
+    @Query("SELECT * FROM User ORDER BY score DESC")
     fun selectAll(): MutableList<User>
 }
 

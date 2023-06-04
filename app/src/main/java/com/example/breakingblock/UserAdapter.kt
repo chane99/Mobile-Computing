@@ -21,9 +21,13 @@ class UserAdapter(private var dataSet: MutableList<User>):RecyclerView.Adapter<U
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val binding = (holder as MyViewHolder).binding
-        binding.uniqueid.text= dataSet[position].id.toString()
-        binding.nickname.text=dataSet[position].name
-        binding.score.text=dataSet[position].score.toString()
+        val user = dataSet[position]
+        val sortedDataSet = dataSet.sortedByDescending { it.score }
+        val userIndex = sortedDataSet.indexOf(user)
+        val rank = userIndex + 1
+        binding.uniqueid.text= "$rank 등"
+        binding.nickname.text=user.name
+        binding.score.text=user.score.toString()
 
     }
 }
