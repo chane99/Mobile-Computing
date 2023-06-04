@@ -15,6 +15,12 @@
         android:text="@string/score_label"
         android:textSize="50dp"
         android:paddingVertical="50dp"/>
+    <EditText
+        android:id="@+id/editname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:hint="닉네임 입력"/>
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"

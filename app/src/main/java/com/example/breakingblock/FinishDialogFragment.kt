@@ -48,7 +48,8 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         resultTextView = binding.result
 
         binding.saveBtn.setOnClickListener {
-            val scoreEntity = User(name = "kingmingseo", score = score)
+            var edtname = binding.editname.getText().toString()
+            val scoreEntity = User(name = edtname, score = score)
             insertScore(scoreEntity)
             selectAllUsers()
             dismiss()
