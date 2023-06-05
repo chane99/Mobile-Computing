@@ -68,14 +68,13 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
                     }
                     countdata = userCount
 
-                    if (countdata > 15) {
-                        deleteLastScore()
-                    }
-
                     Toast.makeText(context, "점수가 랭킹에 등록됐습니다", Toast.LENGTH_SHORT).show()
                     val scoreEntity = User(name = edtname, score = score)
                     insertScore(scoreEntity)
                     selectAllUsers()
+                    if (countdata > 15) {
+                        deleteLastScore()
+                    }
 
                     binding.editname.visibility = View.GONE
                     binding.saveBtn.visibility = View.GONE

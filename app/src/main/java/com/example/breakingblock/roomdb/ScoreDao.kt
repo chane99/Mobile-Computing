@@ -24,7 +24,7 @@ interface ScoreDao {
     @Query("SELECT * FROM User ORDER BY score DESC LIMIT 1")
     fun getHighestScore(): User?
 
-    @Query("SELECT * FROM User ORDER BY score DESC LIMIT 1 OFFSET 15")
+    @Query("SELECT * FROM User ORDER BY score DESC LIMIT 1 OFFSET 14")
     fun getLowestScore(): User?
 
     @Query("SELECT COUNT(*) FROM User")
