@@ -272,18 +272,18 @@ class GameView(context: Context) : View(context) {
         m_Arr_BlockList.clear()
         for (row in 0 until blockRowCount) {
             val w_Block_Y = w_Block_H * row
-            val offsetY = w_Block_Y + 120   // Y좌표에 50을 더해 블록을 아래로 이동
+            val offsetY = w_Block_Y + 120   // Y좌표에 120을 더해 블록을 아래로 이동
 
             val blockColor = when (row) {
                 0 -> m_Img_Block3    // 빨간색 블록
-                1 -> m_Img_Block2 // 파란색 블록
+                1, 2 -> m_Img_Block2 // 파란색 블록
                 else -> m_Img_Block1  // 노란색 블록
             }
             for (column in 0 until blockColumnCount) {
                 val w_Block_X = w_Block_W * column
                 val collisionCount = when (row) {
                     0 -> 3    // 빨간색 블록
-                    1 -> 2 // 파란색 블록
+                    1, 2 -> 2 // 파란색 블록
                     else -> 1  // 노란색 블록
                 }
                 val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
@@ -292,6 +292,14 @@ class GameView(context: Context) : View(context) {
 
         }
         val random = Random()
+        val blueBlocks = m_Arr_BlockList.filter { it.collisionCount == 2 && it.img == m_Img_Block2 }
+            .shuffled()
+            .take(7)
+        for (block2 in blueBlocks) {
+            block2.img = m_Img_Block3
+            block2.collisionCount = 3
+        }
+
         val yellowBlocks = m_Arr_BlockList.filter { it.collisionCount == 1 && it.img == m_Img_Block1 }
             .shuffled()
             .take(7)
@@ -301,7 +309,57 @@ class GameView(context: Context) : View(context) {
             block.collisionCount = 2
         }
 
+        val redBlocks = m_Arr_BlockList.filter { it.collisionCount == 3 && it.img == m_Img_Block3 }
+            .shuffled()
+            .take(3)
+        for (block in redBlocks) {
+            block.img = m_Img_Block1
+            block.collisionCount = 1
+        }
     }
+
+    // 추가되는 블럭 생성 로직
+    private fun addAdditionalBlocks() {
+        val blockRowCount = 8       // 증가된 행의 개수
+        val blockColumnCount = 7    // 열의 개수
+
+        val w_Block_W = viewWidth / blockColumnCount
+        val w_Block_H = w_Block_W / 3
+
+        // 기존 블록들을 아래로 이동시키기
+        for (block in m_Arr_BlockList) {
+            block.Block_Y += w_Block_H
+        }
+
+        // 추가된 행의 블록 생성
+        val additionalBlocks = mutableListOf<Block>()
+        val random = Random()
+
+        for (column in 0 until blockColumnCount) {
+            val w_Block_X = w_Block_W * column
+            val w_Block_Y = 0
+            val offsetY = w_Block_Y + 120   // Y좌표에 120을 더해 블록을 아래로 이동
+
+            val blockColor = when (random.nextInt(3)) {
+                0 -> m_Img_Block3    // 빨간색 블록
+                1 -> m_Img_Block2    // 파란색 블록
+                else -> m_Img_Block1  // 노란색 블록
+            }
+
+            val collisionCount = when (blockColor) {
+                m_Img_Block3 -> 3    // 빨간색 블록
+                m_Img_Block2 -> 2    // 파란색 블록
+                else -> 1            // 노란색 블록
+            }
+
+            val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
+            additionalBlocks.add(w_Block)
+        }
+
+        m_Arr_BlockList.addAll(additionalBlocks)
+        invalidate()
+    }
+
 
 
     private fun func_BallMove() {
@@ -416,6 +474,11 @@ class GameView(context: Context) : View(context) {
 
         if (collisionOccurred) {
             invalidate()
+        }
+
+        // 블럭 개수 28개보다 줄어들면 블럭 한 줄(7개) 추가
+        if (m_Arr_BlockList.size < 28) {
+            addAdditionalBlocks()
         }
     }
 
