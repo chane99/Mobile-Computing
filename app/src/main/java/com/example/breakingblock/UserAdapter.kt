@@ -27,7 +27,7 @@ class UserAdapter(private var dataSet: MutableList<User>):RecyclerView.Adapter<U
         val rank = userIndex + 1
         binding.uniqueid.text= "$rank 등"
         binding.nickname.text=user.name
-        binding.score.text=user.score.toString()
+        binding.score.text=user.score.toString()+"점"
 
     }
 }

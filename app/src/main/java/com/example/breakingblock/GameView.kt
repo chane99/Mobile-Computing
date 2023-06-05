@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 import kotlin.collections.ArrayList
@@ -19,7 +18,6 @@ class GameView(context: Context) : View(context) {
     var ballSpeedY: Float = 0F
     var savedBallSpeedX: Float = 0F
     var savedBallSpeedY: Float = 0F
-
     var lives: Int = 3
     var viewWidth: Int = 0
     var viewHeight: Int = 0
@@ -327,8 +325,6 @@ class GameView(context: Context) : View(context) {
     //패들 충돌 확인
     private fun func_PaddleCheck() {
         if (isPlay) {
-            // 패들 중앙의 X좌표
-            val paddleCenterX = paddleX + paddleWidth / 2
 
             // 패들 길이 9등분한 길이
             val intervalX = paddleWidth / 10
@@ -386,6 +382,7 @@ class GameView(context: Context) : View(context) {
                 ballSpeedY *= -1
                 ballY += ballSpeedY
             }
+
         }
     }
 

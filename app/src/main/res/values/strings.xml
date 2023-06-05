@@ -3,6 +3,7 @@
     <string name="game_start">GAME START</string>
     <string name="rank">Ranking</string>
     <string name="score_label">점수: %d</string>
+    <string name="high_score_label">최고점수: %d</string>
     <string name="exit">EXIT</string>
     <string name="retry">RETRY</string>
     <string name="save">SAVE</string>
