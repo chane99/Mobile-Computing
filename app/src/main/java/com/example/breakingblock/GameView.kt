@@ -9,6 +9,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class GameView(context: Context) : View(context) {
@@ -276,20 +278,31 @@ class GameView(context: Context) : View(context) {
 
             val blockColor = when (row) {
                 0 -> m_Img_Block3    // 빨간색 블록
-                1, 2 -> m_Img_Block2 // 파란색 블록
+                1 -> m_Img_Block2 // 파란색 블록
                 else -> m_Img_Block1  // 노란색 블록
             }
             for (column in 0 until blockColumnCount) {
                 val w_Block_X = w_Block_W * column
                 val collisionCount = when (row) {
                     0 -> 3    // 빨간색 블록
-                    1, 2 -> 2 // 파란색 블록
+                    1 -> 2 // 파란색 블록
                     else -> 1  // 노란색 블록
                 }
                 val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
                 m_Arr_BlockList.add(w_Block)
             }
+
         }
+        val random = Random()
+        val yellowBlocks = m_Arr_BlockList.filter { it.collisionCount == 1 && it.img == m_Img_Block1 }
+            .shuffled()
+            .take(7)
+
+        for (block in yellowBlocks) {
+            block.img = m_Img_Block2
+            block.collisionCount = 2
+        }
+
     }
 
 
