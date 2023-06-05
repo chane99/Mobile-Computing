@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/localrankitem"
@@ -17,11 +16,11 @@
 
     <TextView
         android:id="@+id/nickname"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:gravity="center"
-        android:paddingStart="50dp"
+        android:layout_weight="1"
         android:text="kingmingseo"
         android:textSize="30sp"
         tools:ignore="RtlSymmetry" />
@@ -31,8 +30,12 @@
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_gravity="center"
-        android:gravity="center"
+        android:gravity="center|end"
         android:paddingLeft="30dp"
         android:text="50점"
-        android:textSize="30sp" />
+        android:textSize="30sp"
+        android:ellipsize="end"
+        android:singleLine="true" />
+
 </LinearLayout>
+

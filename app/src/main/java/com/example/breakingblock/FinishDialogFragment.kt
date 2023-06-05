@@ -8,10 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
 import com.example.breakingblock.databinding.FinishLayoutBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
 import com.example.breakingblock.roomdb.User
@@ -19,6 +18,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.properties.Delegates
+
 
 class FinishDialogFragment(private val score: Int) : DialogFragment() {
     private var _binding: FinishLayoutBinding? = null
@@ -28,10 +29,15 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
     private var retryClickListener: (() -> Unit)? = null
     private lateinit var resultTextView: TextView
     private lateinit var db: ScoreDatabase
+    private lateinit var resultTextView2: TextView
+    private var countdata by Delegates.notNull<Int>()
+
 
     override fun onStart() {
         super.onStart()
         resultTextView.text = (context as AppCompatActivity).getString(R.string.score_label, score)
+        getHighestScore()
+        getLowestScore()
     }
 
     override fun onCreateView(
@@ -46,14 +52,38 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         db = ScoreDatabase.getInstance(requireContext().applicationContext)!!
         resultTextView = binding.result
+        resultTextView2 = binding.highResult
+        binding.newrankmessage.visibility = View.INVISIBLE
+        binding.editname.visibility = View.GONE
+        binding.saveBtn.visibility = View.GONE
 
         binding.saveBtn.setOnClickListener {
-            var edtname = binding.editname.getText().toString()
-            val scoreEntity = User(name = edtname, score = score)
-            insertScore(scoreEntity)
-            selectAllUsers()
-            dismiss()
+            val edtname = binding.editname.text.toString().trim()
+            if (edtname.isEmpty()) {
+                Toast.makeText(context, "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show()
+            } else {
+                CoroutineScope(Dispatchers.Main).launch {
+                    val userCount = withContext(Dispatchers.IO) {
+                        db.scoreDao().getCount()
+                    }
+                    countdata = userCount
+
+                    if (countdata > 15) {
+                        deleteLastScore()
+                    }
+
+                    Toast.makeText(context, "점수가 랭킹에 등록됐습니다", Toast.LENGTH_SHORT).show()
+                    val scoreEntity = User(name = edtname, score = score)
+                    insertScore(scoreEntity)
+                    selectAllUsers()
+
+                    binding.editname.visibility = View.GONE
+                    binding.saveBtn.visibility = View.GONE
+                }
+            }
         }
+
+
 
         binding.retryBtn.setOnClickListener {
             retryClickListener?.invoke()
@@ -105,5 +135,46 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
             }
         }
     }
+    fun getHighestScore() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val user = withContext(Dispatchers.IO) {
+                db.scoreDao().getHighestScore()
+            }
+            var highestScore = user?.score ?: 0
+            if (::resultTextView2.isInitialized) { // null 체크 추가
+                resultTextView2.text = (context as AppCompatActivity).getString(R.string.high_score_label, highestScore)
+            }
+        }
+    }
+
+    fun getLowestScore() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val user = withContext(Dispatchers.IO) {
+                db.scoreDao().getLowestScore()
+            }
+            var lowestScore = user?.score ?: 0
+
+            if(lowestScore < score){
+                binding.newrankmessage.visibility=View.VISIBLE
+                binding.editname.visibility = View.VISIBLE
+                binding.saveBtn.visibility = View.VISIBLE
+            }
+
+        }
+    }
+
+
+    fun deleteLastScore() {
+        CoroutineScope(Dispatchers.Main).launch {
+            withContext(Dispatchers.IO) {
+                db.scoreDao().deleteLowestScore()
+            }
+
+        }
+    }
+
+
+
+
 
 }
