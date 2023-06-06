@@ -22,10 +22,12 @@
             android:screenOrientation="portrait"> <!-- 화면 전환 방지 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="com.google.android.gms.games.APP_ID"
+            android:value="@string/game_services_project_id"/>
+
     </application>
 
 </manifest>
