@@ -17,9 +17,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.games.PlayGames
+import com.google.android.gms.games.PlayGamesSdk
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.*
+
 
 class MainActivity : Activity() {
     private lateinit var binding: ActivityMainBinding
@@ -30,6 +33,7 @@ class MainActivity : Activity() {
     private val REQ_SIGN_GOOGLE = 100
     private var backPressedTime: Long = 0
     private lateinit var adapter: UserAdapter
+    private val RC_LEADERBOARD_UI = 9004
 
 
 
@@ -39,6 +43,7 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         var db = ScoreDatabase.getInstance(applicationContext)
+        PlayGamesSdk.initialize(this);
 
 
         // 파이어베이스 인증 객체 초기화
@@ -94,6 +99,15 @@ class MainActivity : Activity() {
 
                 dialog.show()
             }
+        }
+        binding.worldrank.setOnClickListener{
+            PlayGames.getLeaderboardsClient(this)
+                .getLeaderboardIntent(getString(R.string.leaderboard_id))
+                .addOnSuccessListener { intent ->
+                    startActivityForResult(
+                        intent, RC_LEADERBOARD_UI
+                    )
+                }
         }
     }
 
