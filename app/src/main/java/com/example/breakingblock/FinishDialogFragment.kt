@@ -1,5 +1,6 @@
 package com.example.breakingblock
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -75,12 +77,16 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
                     if (countdata > 15) {
                         deleteLastScore()
                     }
-
+                    binding.newrankmessage.visibility = View.INVISIBLE
                     binding.editname.visibility = View.GONE
                     binding.saveBtn.visibility = View.GONE
+
+                    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(binding.editname.windowToken, 0)
                 }
             }
         }
+
 
 
 
