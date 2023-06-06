@@ -41,6 +41,7 @@ class GameView(context: Context) : View(context) {
     var pauseBtnHeight: Int = 0
     var pauseBtnX : Int = 0
     var pauseBtnY : Int = 0
+    private var pauseBtnPressed = false
 
 
     lateinit var m_Img_Block1: Bitmap
@@ -116,6 +117,7 @@ class GameView(context: Context) : View(context) {
             isPlay = true
             ballSpeedX = savedBallSpeedX
             ballSpeedY = savedBallSpeedY
+            pauseBtnPressed = false
         }
         dialogFragment.setOnExitClickListener {
             val intent = Intent(context, MainActivity::class.java)
@@ -147,11 +149,15 @@ class GameView(context: Context) : View(context) {
                     touchY >= pauseBtnY && touchY <= pauseBtnY + pauseBtnHeight) {
                     savedBallSpeedY = ballSpeedY
                     savedBallSpeedX = ballSpeedX
+                    pauseBtnPressed = true
                     isPlay = false
                     showCustomDialog()
                 }
             }
             MotionEvent.ACTION_MOVE -> {
+                if(pauseBtnPressed){
+                    return true
+                }
                 if (!isPlay) {
                     paddleX = touchX - paddleWidth / 2
                     if (paddleX < 0) {
@@ -170,6 +176,9 @@ class GameView(context: Context) : View(context) {
                 }
             }
             MotionEvent.ACTION_UP -> {
+                if(pauseBtnPressed){
+                    return true
+                }
                 if (!isPlay && !(touchX >= pauseBtnX && touchX <= pauseBtnX + pauseBtnWidth &&
                             touchY >= pauseBtnY && touchY <= pauseBtnY + pauseBtnHeight)) {
                     isPlay = true
@@ -202,6 +211,7 @@ class GameView(context: Context) : View(context) {
         pauseBtn = Bitmap.createScaledBitmap(pauseBtn, pauseBtnWidth, pauseBtnHeight, false)
         lives = 3
         score = 0
+        pauseBtnPressed = false
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
         ballDiameter = paddleHeight
