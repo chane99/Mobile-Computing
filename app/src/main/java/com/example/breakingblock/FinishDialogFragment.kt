@@ -57,8 +57,10 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
             signInClient.silentSignIn().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     if (highestScore < score) {
-                        val leaderboardClient = PlayGames.getLeaderboardsClient(requireActivity())
-                        leaderboardClient.submitScore(getString(R.string.leaderboard_id), score.toLong())
+                        PlayGames.getLeaderboardsClient(requireActivity())
+                            .submitScore(getString(R.string.leaderboard_breakingblock_ranking),
+                                score.toLong()
+                            )
                         Toast.makeText(requireContext(), "최고 기록을 갱신하였습니다.\n 월드 랭킹 등록 성공", Toast.LENGTH_SHORT).show()
                     }
                 } else {

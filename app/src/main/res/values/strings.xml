@@ -1,5 +1,4 @@
 <resources>
-    <string translatable="false" name="game_services_project_id">265925804312</string>
     <string name="app_name">BreakingBlock</string>
     <string name="game_start">GAME START</string>
     <string name="rank">Ranking</string>
@@ -10,5 +9,4 @@
     <string name="save">SAVE</string>
     <string name="worldRank">world ranking</string>
     <string name="순위표">순위표</string>
-    <string name="leaderboard_id">CgkImIKn094HEAIQAQ</string>
 </resources>

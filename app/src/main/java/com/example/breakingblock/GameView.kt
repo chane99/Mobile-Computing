@@ -8,6 +8,7 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.play.integrity.internal.w
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -503,6 +504,13 @@ class GameView(context: Context) : View(context) {
             }
             if (w_Block.collisionCount <= 0) {
                 blocksToRemove.add(w_Block)
+                if (!itemActive && Math.random() < 0.01) {
+                    // 확률을 조정하여 아이템이 생성되는 빈도를 조절할 수 있습니다.
+                    // 여기서는 1%의 확률로 아이템이 생성되도록 설정하였습니다.
+                    itemActive = true
+                    itemX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
+                    itemY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
+                }
                 score += 1 // 블럭이 사라질 때마다 점수 1점 추가
             }
         }
@@ -517,38 +525,32 @@ class GameView(context: Context) : View(context) {
         if (m_Arr_BlockList.size < 28) {
             addAdditionalBlocks()
         }
-       if (collisionOccurred) {
+
+        if (collisionOccurred) {
             invalidate()
         }
-
 
         if (itemActive) {
             itemY += 10
             // 아이템이 화면 아래로 벗어나면 비활성화
             if (itemY > viewHeight) {
                 itemActive = false
+            } else {
+                // 아이템과 패들의 충돌 체크
+                if (itemY + itemRadius >= paddleY &&
+                    itemX + itemRadius >= paddleX &&
+                    itemX - itemRadius <= paddleX + paddleWidth
+                ) {
+                    // 아이템이 패들과 충돌하면 목숨 회복
+                    if (lives < 3) {
+                        lives++
+                    }
+                    itemActive = false  // 아이템 비활성화
+                }
             }
-        }
-        if (!itemActive && Math.random() < 0.002) {
-            // 확률을 조정하여 아이템이 생성되는 빈도를 조절할 수 있습니다.
-            // 여기서는 1%의 확률로 아이템이 생성되도록 설정하였습니다.
-            itemActive = true
-            itemX = (Math.random() * (viewWidth - itemRadius * 2)).toInt().toFloat()
-            itemY = 0F
-        }
-
-// 아이템과 패들의 충돌 체크
-        if (itemY + itemRadius >= paddleY &&
-            itemX + itemRadius >= paddleX &&
-            itemX - itemRadius <= paddleX + paddleWidth
-        ) {
-            // 아이템이 패들과 충돌하면 목숨 회복
-            if (lives < 3) {
-                lives++
-            }
-            itemActive = false  // 아이템 비활성화
         }
     }
+
 
     var isEnd: Boolean = true  //메모리 누수 방지를 위한 핸들러
     private fun handlerViewReload(delayTime: Long) {
