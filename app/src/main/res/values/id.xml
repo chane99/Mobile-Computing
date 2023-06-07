@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Google Play game services IDs. Save this file as res/values/games-ids.xml in your project.-->
+<resources>
+    <!--app_id-->
+    <string name="app_id" translatable="false">773845364275</string>
+    <!--package_name-->
+    <string name="package_name" translatable="false"></string>
+    <!--leaderboard BreakingBlock RANKING-->
+    <string name="leaderboard_breakingblock_ranking" translatable="false">CgkIs9yc5sIWEAIQAA</string>
+</resources>

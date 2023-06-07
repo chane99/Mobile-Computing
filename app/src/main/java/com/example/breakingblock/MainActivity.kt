@@ -6,10 +6,8 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,7 +17,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.AccountPicker
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
@@ -117,7 +114,7 @@ class MainActivity : Activity() {
                     if (signInTask.isSuccessful) {
                         // Play Games에 로그인 성공
                         PlayGames.getLeaderboardsClient(this)
-                            .getLeaderboardIntent(getString(R.string.leaderboard_id))
+                            .getLeaderboardIntent(getString(R.string.leaderboard_breakingblock_ranking))
                             .addOnSuccessListener { intent ->
                                 startActivityForResult(intent, RC_LEADERBOARD_UI)
                             }
