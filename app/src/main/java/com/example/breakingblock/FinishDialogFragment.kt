@@ -1,5 +1,6 @@
 package com.example.breakingblock
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -16,6 +17,10 @@ import androidx.fragment.app.DialogFragment
 import com.example.breakingblock.databinding.FinishLayoutBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
 import com.example.breakingblock.roomdb.User
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.games.PlayGames
+import com.google.android.material.color.utilities.Score.score
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,14 +38,41 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
     private lateinit var db: ScoreDatabase
     private lateinit var resultTextView2: TextView
     private var countdata by Delegates.notNull<Int>()
-
+    private var highestScore = 0
 
     override fun onStart() {
         super.onStart()
         resultTextView.text = (context as AppCompatActivity).getString(R.string.score_label, score)
         getHighestScore()
         getLowestScore()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val user = withContext(Dispatchers.IO) {
+                db.scoreDao().getHighestScore()
+            }
+            val highestScore = user?.score ?: 0
+
+            val signInClient = GoogleSignIn.getClient(requireActivity(), GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build())
+
+            signInClient.silentSignIn().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (highestScore < score) {
+                        val leaderboardClient = PlayGames.getLeaderboardsClient(requireActivity())
+                        leaderboardClient.submitScore(getString(R.string.leaderboard_id), score.toLong())
+                        Toast.makeText(requireContext(), "최고 기록을 갱신하였습니다.\n 월드 랭킹 등록 성공", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val exception = task.exception
+                    Log.e("GoogleSignIn", "로그인 실패: $exception")
+                    Toast.makeText(requireContext(), "구글 로그인이 되어있지 않습니다.\n 월드 랭킹 등록 실패", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
+
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,6 +90,7 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         binding.newrankmessage.visibility = View.INVISIBLE
         binding.editname.visibility = View.GONE
         binding.saveBtn.visibility = View.GONE
+
 
         binding.saveBtn.setOnClickListener {
             val edtname = binding.editname.text.toString().trim()
@@ -145,7 +178,7 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
             val user = withContext(Dispatchers.IO) {
                 db.scoreDao().getHighestScore()
             }
-            var highestScore = user?.score ?: 0
+            highestScore = user?.score ?: 0
             if (::resultTextView2.isInitialized) { // null 체크 추가
                 resultTextView2.text = (context as AppCompatActivity).getString(R.string.high_score_label, highestScore)
             }
