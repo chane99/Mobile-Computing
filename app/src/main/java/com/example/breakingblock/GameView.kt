@@ -21,6 +21,10 @@ class GameView(context: Context) : View(context) {
     var lives: Int = 3
     var viewWidth: Int = 0
     var viewHeight: Int = 0
+    var itemX :Float =0F // 아이템의 X 좌표
+    var itemY :Float =0F // 아이템의 Y 좌표
+    var itemActive = false  // 아이템이 활성화 상태인지 여부
+    val itemRadius = 30    // 아이템의 반지름
 
     lateinit var imgPaddle: Bitmap
     lateinit var pauseBtn: Bitmap
@@ -84,6 +88,29 @@ class GameView(context: Context) : View(context) {
                 w_Block.Block_Y.toFloat(),
                 null
             )
+        }
+         val paint = Paint()
+        paint.setColor(Color.RED)
+
+//item 생성
+        if (itemActive) {
+            val starPath = Path()
+            val radius = itemRadius.toFloat()
+
+            // 별 모양을 그리는 경로를 생성합니다.
+            starPath.moveTo(itemX.toFloat(), itemY.toFloat() - radius)
+            starPath.lineTo(itemX.toFloat() + 0.4f * radius, itemY.toFloat() - 0.4f * radius)
+            starPath.lineTo(itemX.toFloat() + radius, itemY.toFloat() - 0.4f * radius)
+            starPath.lineTo(itemX.toFloat() + 0.5f * radius, itemY.toFloat() + 0.4f * radius)
+            starPath.lineTo(itemX.toFloat() + 0.8f * radius, itemY.toFloat() + radius)
+            starPath.lineTo(itemX.toFloat(), itemY.toFloat() + 0.6f * radius)
+            starPath.lineTo(itemX.toFloat() - 0.8f * radius, itemY.toFloat() + radius)
+            starPath.lineTo(itemX.toFloat() - 0.5f * radius, itemY.toFloat() + 0.4f * radius)
+            starPath.lineTo(itemX.toFloat() - radius, itemY.toFloat() - 0.4f * radius)
+            starPath.lineTo(itemX.toFloat() - 0.4f * radius, itemY.toFloat() - 0.4f * radius)
+            starPath.close()
+
+            canvas.drawPath(starPath, paint)
         }
 
         // 초기화
@@ -489,6 +516,17 @@ class GameView(context: Context) : View(context) {
         // 블럭 개수 28개보다 줄어들면 블럭 한 줄(7개) 추가
         if (m_Arr_BlockList.size < 28) {
             addAdditionalBlocks()
+        }
+        // 아이템과 패들의 충돌 체크
+        if (itemY + itemRadius >= paddleY &&
+            itemX + itemRadius >= paddleX &&
+            itemX - itemRadius <= paddleX + paddleWidth
+        ) {
+            // 아이템이 패들과 충돌하면 목숨 회복
+            if (lives < 3) {
+                lives++
+            }
+            itemActive = false  // 아이템 비활성화
         }
     }
 
