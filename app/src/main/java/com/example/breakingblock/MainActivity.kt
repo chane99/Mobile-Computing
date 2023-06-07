@@ -1,12 +1,15 @@
 package com.example.breakingblock
 
+import UserAdapter
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.AccountPicker
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.games.PlayGames
 import com.google.android.gms.games.PlayGamesSdk
@@ -54,6 +58,7 @@ class MainActivity : Activity() {
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
+        val gamesSignInClient = PlayGames.getGamesSignInClient(this)
 
         // 구글 로그인 클라이언트 초기화
         googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions)
@@ -100,15 +105,35 @@ class MainActivity : Activity() {
                 dialog.show()
             }
         }
-        binding.worldrank.setOnClickListener{
-            PlayGames.getLeaderboardsClient(this)
-                .getLeaderboardIntent(getString(R.string.leaderboard_id))
-                .addOnSuccessListener { intent ->
-                    startActivityForResult(
-                        intent, RC_LEADERBOARD_UI
-                    )
+        binding.worldrank.setOnClickListener {
+            auth = FirebaseAuth.getInstance()
+            val firebaseAuth = FirebaseAuth.getInstance()
+            val currentUser = firebaseAuth.currentUser
+
+            if (currentUser != null) {
+                val accountDisplayName = currentUser.displayName
+                Log.d("TAG", "로그인된 계정: $accountDisplayName")
+                gamesSignInClient.signIn().addOnCompleteListener { signInTask ->
+                    if (signInTask.isSuccessful) {
+                        // Play Games에 로그인 성공
+                        PlayGames.getLeaderboardsClient(this)
+                            .getLeaderboardIntent(getString(R.string.leaderboard_id))
+                            .addOnSuccessListener { intent ->
+                                startActivityForResult(intent, RC_LEADERBOARD_UI)
+                            }
+                    } else {
+                        // Play Games에 로그인 실패
+                        Toast.makeText(this, "Play Games 로그인 실패", Toast.LENGTH_SHORT).show()
+                    }
                 }
+            } else {
+                // 로그인되지 않은 상태
+                Toast.makeText(this, "구글 로그인이 필요합니다", Toast.LENGTH_SHORT).show()
+            }
         }
+
+
+
     }
 
 
@@ -134,15 +159,17 @@ class MainActivity : Activity() {
         auth.signInWithCredential(credential).addOnCompleteListener(this) { task ->
             if (task.isSuccessful) {
                 Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
-                val intent = Intent(applicationContext, ResultActivity::class.java)
-                intent.putExtra("nickName", account?.displayName)
-                intent.putExtra("photoURL", account?.photoUrl?.toString())
-                startActivity(intent)
+
             } else {
                 Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+
+
+
+
 
     override fun onPause() {
         super.onPause()
