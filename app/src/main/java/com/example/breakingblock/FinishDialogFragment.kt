@@ -1,6 +1,5 @@
 package com.example.breakingblock
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -18,12 +17,11 @@ import com.example.breakingblock.databinding.FinishLayoutBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
 import com.example.breakingblock.roomdb.User
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.games.PlayGames
-import com.google.android.material.color.utilities.Score.score
+import com.google.android.gms.games.Games
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 import kotlinx.coroutines.withContext
 import kotlin.properties.Delegates
 
@@ -45,36 +43,7 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         resultTextView.text = (context as AppCompatActivity).getString(R.string.score_label, score)
         getHighestScore()
         getLowestScore()
-
-        CoroutineScope(Dispatchers.Main).launch {
-            val user = withContext(Dispatchers.IO) {
-                db.scoreDao().getHighestScore()
-            }
-            val highestScore = user?.score ?: 0
-
-            val signInClient = GoogleSignIn.getClient(requireActivity(), GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build())
-
-            signInClient.silentSignIn().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (highestScore < score) {
-                        PlayGames.getLeaderboardsClient(requireActivity())
-                            .submitScore(getString(R.string.leaderboard_breakingblock_ranking),
-                                score.toLong()
-                            )
-                        Toast.makeText(requireContext(), "최고 기록을 갱신하였습니다.\n 월드 랭킹 등록 성공", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val exception = task.exception
-                    Log.e("GoogleSignIn", "로그인 실패: $exception")
-                    Toast.makeText(requireContext(), "구글 로그인이 되어있지 않습니다.\n 월드 랭킹 등록 실패", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
-
-
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -94,7 +63,9 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         binding.saveBtn.visibility = View.GONE
 
 
+
         binding.saveBtn.setOnClickListener {
+            submit()
             val edtname = binding.editname.text.toString().trim()
             if (edtname.isEmpty()) {
                 Toast.makeText(context, "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show()
@@ -136,6 +107,18 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         }
 
         return view
+    }
+
+    fun submit() {
+        try {
+            GoogleSignIn.getLastSignedInAccount(requireContext())?.let {
+                Games.getLeaderboardsClient(requireActivity(), it)
+                    .submitScore(getString(R.string.leaderboard_breakingblock_ranking), score.toLong())
+            }
+            Toast.makeText(requireContext(), "점수 업로드 성공", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "점수 업로드 실패", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
@@ -183,6 +166,10 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
             highestScore = user?.score ?: 0
             if (::resultTextView2.isInitialized) { // null 체크 추가
                 resultTextView2.text = (context as AppCompatActivity).getString(R.string.high_score_label, highestScore)
+            }
+            if (highestScore < score){
+                submit()
+                Toast.makeText(requireContext(), "최고기록 달성 \n 월드랭킹에 자동 등록 됐습니다", Toast.LENGTH_SHORT).show()
             }
         }
     }

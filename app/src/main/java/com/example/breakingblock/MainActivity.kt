@@ -7,7 +7,10 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,13 +18,10 @@ import com.example.breakingblock.databinding.ActivityMainBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.games.PlayGames
-import com.google.android.gms.games.PlayGamesSdk
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.android.gms.games.Games
+import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.*
 
 
@@ -29,12 +29,14 @@ class MainActivity : Activity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var gameView: GameView
     private var bgmPlayer: MediaPlayer? = null
-    private lateinit var auth: FirebaseAuth // 파이어베이스 인증 객체
-    private lateinit var googleSignInClient: GoogleSignInClient // 구글 로그인 클라이언트 객체
-    private val REQ_SIGN_GOOGLE = 100
+
     private var backPressedTime: Long = 0
     private lateinit var adapter: UserAdapter
-    private val RC_LEADERBOARD_UI = 9004
+    private val RC_SIGN_IN = 9001
+    private val RC_LEADERBOARD_UI = 9002
+
+    private var googleSignInAccount: GoogleSignInAccount? = null
+
 
 
 
@@ -44,33 +46,17 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         var db = ScoreDatabase.getInstance(applicationContext)
-        PlayGamesSdk.initialize(this);
+        signinsilently()
 
-
-        // 파이어베이스 인증 객체 초기화
-        auth = FirebaseAuth.getInstance()
-
-        // 구글 로그인 옵션 설정
-        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-        val gamesSignInClient = PlayGames.getGamesSignInClient(this)
-
-        // 구글 로그인 클라이언트 초기화
-        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions)
 
         // 미디어 플레이어 초기화
         bgmPlayer = MediaPlayer.create(this, R.raw.titlemusic)
         bgmPlayer?.isLooping = true
 
-
-
         // 구글 로그인 버튼 클릭시
         binding.btnGoogle.setOnClickListener {
             bgmPlayer?.pause()
-            val intent = googleSignInClient.signInIntent
-            startActivityForResult(intent, REQ_SIGN_GOOGLE)
+            login()
         }
 
         // 게임 스타트 버튼 클릭시
@@ -103,70 +89,88 @@ class MainActivity : Activity() {
             }
         }
         binding.worldrank.setOnClickListener {
-            auth = FirebaseAuth.getInstance()
-            val firebaseAuth = FirebaseAuth.getInstance()
-            val currentUser = firebaseAuth.currentUser
-
-            if (currentUser != null) {
-                val accountDisplayName = currentUser.displayName
-                Log.d("TAG", "로그인된 계정: $accountDisplayName")
-                gamesSignInClient.signIn().addOnCompleteListener { signInTask ->
-                    if (signInTask.isSuccessful) {
-                        // Play Games에 로그인 성공
-                        PlayGames.getLeaderboardsClient(this)
-                            .getLeaderboardIntent(getString(R.string.leaderboard_breakingblock_ranking))
-                            .addOnSuccessListener { intent ->
-                                startActivityForResult(intent, RC_LEADERBOARD_UI)
-                            }
-                    } else {
-                        // Play Games에 로그인 실패
-                        Toast.makeText(this, "Play Games 로그인 실패", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                // 로그인되지 않은 상태
-                Toast.makeText(this, "구글 로그인이 필요합니다", Toast.LENGTH_SHORT).show()
-            }
+            rank()
         }
+        binding.logout.setOnClickListener{
+            logout()
+        }
+
 
 
 
     }
 
+    fun login() {
+        signinIntent()
+    }
+
+    fun logout() {
+        signout()
+    }
 
 
+    fun rank() {
+        GoogleSignIn.getLastSignedInAccount(this)?.let {
+            Games.getLeaderboardsClient(this, it)
+                .getLeaderboardIntent(getString(R.string.leaderboard_breakingblock_ranking))
+                .addOnSuccessListener { intent ->
+                    startActivityForResult(intent, RC_LEADERBOARD_UI)
+                }
+        }
+    }
 
+    private fun signinIntent() {
+        val signInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+        val intent: Intent = signInClient.signInIntent
+        startActivityForResult(intent, RC_SIGN_IN)
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == REQ_SIGN_GOOGLE) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        if (requestCode == RC_SIGN_IN) {
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
-                val account = task.getResult(ApiException::class.java)
-                resultLogin(account)
-            } catch (e: ApiException) {
-                Toast.makeText(applicationContext, "실패", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+                googleSignInAccount = task.getResult(ApiException::class.java)
 
-    private fun resultLogin(account: GoogleSignInAccount?) {
-        val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
-        auth.signInWithCredential(credential).addOnCompleteListener(this) { task ->
-            if (task.isSuccessful) {
+                // 로그인 성공시
+                binding.btnGoogle.visibility = View.INVISIBLE
+                binding.logout.visibility = View.VISIBLE
                 Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
-
-            } else {
-                Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
+            } catch (apiException: ApiException) {
+                val message = apiException.message
+                if (message == null || message.isEmpty()) {
+                    Toast.makeText(this, "기타 오류 발생", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "$message 오류 발생", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
+    private fun signout() {
+        val signInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+        val logout: Task<Void> = signInClient.signOut()
 
-
-
-
+        logout.addOnCompleteListener(this) { task ->
+            // 로그아웃 완료시
+            binding.btnGoogle.visibility = View.VISIBLE
+            binding.logout.visibility = View.INVISIBLE
+        }
+    }
+    private fun signinsilently() {
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN).build()
+        val account = GoogleSignIn.getLastSignedInAccount(this)
+        if (account != null && GoogleSignIn.hasPermissions(account, *signInOptions.scopeArray)) {
+            // 이미 로그인됨
+            googleSignInAccount = account
+            binding.btnGoogle.visibility = View.INVISIBLE
+            binding.logout.visibility = View.VISIBLE
+        } else {
+            // 로그인 안됨
+            Toast.makeText(this, "오프라인입니다. 로그인하세요.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onPause() {
         super.onPause()
