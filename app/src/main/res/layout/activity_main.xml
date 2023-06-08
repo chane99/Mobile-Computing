@@ -66,15 +66,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/worldrank" >
 
-        <Button
-            android:visibility="invisible"
-            android:id="@+id/logout"
-            android:layout_width="178dp"
-            android:layout_height="wrap_content"
-            android:text="Signout Google"
-            android:layout_gravity="center"/>
-
     </com.google.android.gms.common.SignInButton>
+
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
+        android:layout_marginBottom="39dp"
+        android:text="logout"
+        app:layout_constraintBottom_toTopOf="@+id/gamestart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

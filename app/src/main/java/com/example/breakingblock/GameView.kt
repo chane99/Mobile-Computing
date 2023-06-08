@@ -8,7 +8,6 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.play.integrity.internal.w
 import java.util.*
 import kotlin.collections.ArrayList
 

@@ -2,9 +2,9 @@
 <!--Google Play game services IDs. Save this file as res/values/games-ids.xml in your project.-->
 <resources>
     <!--app_id-->
-    <string name="app_id" translatable="false">773845364275</string>
+    <string name="app_id" translatable="true">428220442668</string>
     <!--package_name-->
-    <string name="package_name" translatable="false"></string>
+    <string name="package_name" translatable="false">com.example.breakingblock</string>
     <!--leaderboard BreakingBlock RANKING-->
-    <string name="leaderboard_breakingblock_ranking" translatable="false">CgkIs9yc5sIWEAIQAA</string>
+    <string name="leaderboard_breakingblock_ranking" translatable="false">CgkIrNC1n7sMEAIQAQ</string>
 </resources>
