@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "173575137045",
+    "project_id": "breakingblock-7dd18",
+    "storage_bucket": "breakingblock-7dd18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173575137045:android:7791eb4dcbe2cefdceeb1c",
+        "android_client_info": {
+          "package_name": "com.example.breakingblock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "173575137045-ea8nh4ufr3lgaj65agecj2vborrjnts5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaHYTbblTiw4CUKzdHqZy022XVJ9L4VZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "173575137045-ea8nh4ufr3lgaj65agecj2vborrjnts5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -47,38 +47,17 @@
         android:id="@+id/worldrank"
         android:layout_width="150dp"
         android:layout_height="56dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="153dp"
         android:text="@string/worldRank"
-        app:layout_constraintBottom_toTopOf="@+id/btnGoogle"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/localrank" />
 
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/btnGoogle"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="44dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/worldrank" >
 
-    </com.google.android.gms.common.SignInButton>
 
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="13dp"
-        android:layout_marginBottom="39dp"
-        android:text="logout"
-        app:layout_constraintBottom_toTopOf="@+id/gamestart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
