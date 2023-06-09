@@ -65,7 +65,6 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
 
 
         binding.saveBtn.setOnClickListener {
-            submit()
             val edtname = binding.editname.text.toString().trim()
             if (edtname.isEmpty()) {
                 Toast.makeText(context, "닉네임을 입력해주세요", Toast.LENGTH_SHORT).show()
@@ -109,17 +108,7 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         return view
     }
 
-    fun submit() {
-        try {
-            GoogleSignIn.getLastSignedInAccount(requireContext())?.let {
-                Games.getLeaderboardsClient(requireActivity(), it)
-                    .submitScore(getString(R.string.leaderboard_breakingblock_ranking), score.toLong())
-            }
-            Toast.makeText(requireContext(), "점수 업로드 성공", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "점수 업로드 실패", Toast.LENGTH_SHORT).show()
-        }
-    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -168,7 +157,6 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
                 resultTextView2.text = (context as AppCompatActivity).getString(R.string.high_score_label, highestScore)
             }
             if (highestScore < score){
-                submit()
                 Toast.makeText(requireContext(), "최고기록 달성 \n 월드랭킹에 자동 등록 됐습니다", Toast.LENGTH_SHORT).show()
             }
         }

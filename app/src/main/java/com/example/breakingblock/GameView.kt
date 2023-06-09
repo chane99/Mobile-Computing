@@ -503,7 +503,7 @@ class GameView(context: Context) : View(context) {
             }
             if (w_Block.collisionCount <= 0) {
                 blocksToRemove.add(w_Block)
-                if (!itemActive && Math.random() < 0.01) {
+                if (!itemActive && Math.random() < 1) {
                     // 확률을 조정하여 아이템이 생성되는 빈도를 조절할 수 있습니다.
                     // 여기서는 1%의 확률로 아이템이 생성되도록 설정하였습니다.
                     itemActive = true
