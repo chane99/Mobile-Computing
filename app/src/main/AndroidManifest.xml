@@ -12,6 +12,11 @@
         android:theme="@style/Theme.BreakingBlock"
         tools:targetApi="31">
         <activity
+            android:name=".LoginActivity"/>
+        <activity
+            android:name=".RegisterActivity"/>
+
+        <activity
             android:name=".WorldrankActivity"/>
         <activity
             android:name=".GameViewActivity" />

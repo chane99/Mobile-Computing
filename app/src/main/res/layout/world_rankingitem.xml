@@ -8,7 +8,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <ImageView
-            android:id="@id/iv_profile"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_margin="5dp"
@@ -27,13 +26,13 @@
                 android:text="아이디"
                 android:layout_margin="5dp"/>
             <TextView
-                android:id="@+id/tv_pw"
+                android:id="@+id/tv_score"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="비밀번호"
                 android:layout_margin="5dp"/>
             <TextView
-                android:id="@+id/tv_username"
+                android:id="@+id/tv_nickname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="kingmingseo"

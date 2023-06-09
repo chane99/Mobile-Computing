@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.breakingblock.databinding.ActivityMainBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
+import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.coroutines.*
 
@@ -24,6 +25,7 @@ class MainActivity : Activity() {
     private var bgmPlayer: MediaPlayer? = null
     private var backPressedTime: Long = 0
     private lateinit var adapter: UserAdapter
+    private lateinit var mFirebaseAuth: FirebaseAuth // 파이어베이스 인증처리
 
 
 
@@ -35,6 +37,7 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         var db = ScoreDatabase.getInstance(applicationContext)
+        mFirebaseAuth = FirebaseAuth.getInstance()
 
 
         // 미디어 플레이어 초기화
@@ -75,6 +78,21 @@ class MainActivity : Activity() {
         binding.worldrank.setOnClickListener {
             val intent = Intent(this, WorldrankActivity::class.java)
             startActivity(intent)
+        }
+        binding.login.setOnClickListener{
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
+        binding.logout.setOnClickListener{
+            binding.logout.setOnClickListener {
+                mFirebaseAuth.signOut()
+                if (mFirebaseAuth.currentUser == null) {
+                    Toast.makeText(this@MainActivity, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "로그아웃에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
 
 

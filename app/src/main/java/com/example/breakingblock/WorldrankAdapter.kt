@@ -13,16 +13,14 @@ class WorldrankAdapter(private val arrayList: ArrayList<WorldrankUser>, private 
     RecyclerView.Adapter<WorldrankAdapter.WorldrankViewHolder>() {
 
     inner class WorldrankViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var iv_profile: ImageView
         var tv_id: TextView
-        var tv_pw: TextView
-        var tv_username: TextView
+        var tv_score: TextView
+        var tv_nickname: TextView
 
         init {
-            iv_profile = itemView.findViewById(R.id.iv_profile)
             tv_id = itemView.findViewById(R.id.tv_id)
-            tv_pw = itemView.findViewById(R.id.tv_pw)
-            tv_username = itemView.findViewById(R.id.tv_username)
+            tv_score = itemView.findViewById(R.id.tv_score)
+            tv_nickname = itemView.findViewById(R.id.tv_nickname)
         }
     }
 
@@ -34,12 +32,9 @@ class WorldrankAdapter(private val arrayList: ArrayList<WorldrankUser>, private 
 
 
     override fun onBindViewHolder(holder: WorldrankViewHolder, position: Int) {
-        Glide.with(holder.itemView)
-            .load(arrayList.get(position).getProfile())
-            .into(holder.iv_profile)
         holder.tv_id.setText(arrayList.get(position).getId())
-        holder.tv_pw.setText((arrayList.get(position).getPw()).toString())
-        holder.tv_username.setText(arrayList.get(position).getUserName())
+        holder.tv_score.setText((arrayList.get(position).getPw()).toString())
+        holder.tv_nickname.setText(arrayList.get(position).getUserName())
     }
 
     override fun getItemCount(): Int {
