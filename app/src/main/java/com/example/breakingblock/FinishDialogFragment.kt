@@ -95,7 +95,7 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
                     val scoreEntity = User(name = edtname, score = score)
                     insertScore(scoreEntity)
                     selectAllUsers()
-                    if (countdata > 15) {
+                    if (countdata >= 15) {
                         deleteLastScore()
                     }
                     binding.newrankmessage.visibility = View.INVISIBLE
