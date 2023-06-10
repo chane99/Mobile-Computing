@@ -131,9 +131,7 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
         _binding = null
     }
 
-    fun setOnSaveClickListener(listener: () -> Unit) {
-        saveClickListener = listener
-    }
+
 
     fun setOnExitClickListener(listener: () -> Unit) {
         exitClickListener = listener

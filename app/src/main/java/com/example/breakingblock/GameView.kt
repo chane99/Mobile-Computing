@@ -103,7 +103,7 @@ class GameView(context: Context) : View(context) {
          val paint = Paint()
         paint.setColor(Color.RED)
 
-//item 생성
+        //item 생성
         if (itemActive) {
             val starPath = Path()
             val radius = itemRadius.toFloat()
@@ -264,7 +264,7 @@ class GameView(context: Context) : View(context) {
         startTime = 0 // startTime 초기화
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
-        ballDiameter = viewWidth / 21
+        ballDiameter = viewWidth / 21  // 블럭의 높이와 동일
         ballRadius = ballDiameter / 2
         ballX = (paddleX + paddleWidth / 2 - ballRadius).toFloat()
         ballY = (paddleY - ballDiameter).toFloat()
@@ -287,9 +287,6 @@ class GameView(context: Context) : View(context) {
             val dialogFragment = FinishDialogFragment(score)
             dialogFragment.show((context as AppCompatActivity).supportFragmentManager, "FinishDialog")
 
-            dialogFragment.setOnSaveClickListener {
-                // 점수 db에 저장하는 기능 들어갈 부분
-            }
             dialogFragment.setOnExitClickListener {
                 val intent = Intent(context, MainActivity::class.java)
                 context.startActivity(intent)
