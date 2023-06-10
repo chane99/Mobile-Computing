@@ -264,7 +264,7 @@ class GameView(context: Context) : View(context) {
         startTime = 0 // startTime 초기화
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
-        ballDiameter = paddleHeight
+        ballDiameter = viewWidth / 21
         ballRadius = ballDiameter / 2
         ballX = (paddleX + paddleWidth / 2 - ballRadius).toFloat()
         ballY = (paddleY - ballDiameter).toFloat()
@@ -549,10 +549,6 @@ class GameView(context: Context) : View(context) {
 
         m_Arr_BlockList.removeAll(blocksToRemove)
 
-        if (collisionOccurred) {
-            invalidate()
-        }
-
         // 블럭 개수 28개보다 줄어들면 블럭 한 줄(7개) 추가
         if (m_Arr_BlockList.size < 28) {
             addAdditionalBlocks()
@@ -561,6 +557,8 @@ class GameView(context: Context) : View(context) {
         if (collisionOccurred) {
             invalidate()
         }
+
+
 
         if (itemActive) {
             itemY += 10
