@@ -13,15 +13,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import com.example.breakingblock.LoginActivity.Companion.userId
 import com.example.breakingblock.databinding.FinishLayoutBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
 import com.example.breakingblock.roomdb.User
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.games.Games
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 import kotlinx.coroutines.withContext
 import kotlin.properties.Delegates
 
@@ -37,12 +37,28 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
     private lateinit var resultTextView2: TextView
     private var countdata by Delegates.notNull<Int>()
     private var highestScore = 0
+    private lateinit var firebaseAuth: FirebaseAuth
+    val ref = FirebaseDatabase.getInstance().getReference("Worldranking")
+
+
 
     override fun onStart() {
         super.onStart()
         resultTextView.text = (context as AppCompatActivity).getString(R.string.score_label, score)
         getHighestScore()
         getLowestScore()
+        firebaseAuth = FirebaseAuth.getInstance()
+        val currentUser = firebaseAuth.currentUser
+        val name = currentUser?.displayName
+        if (name != null) {
+            checkAndUpdateScore(name,score)
+        }
+        else{
+            Toast.makeText(requireContext(), "로그아웃 상태입니다. \n 월드랭킹 등록 실패", Toast.LENGTH_SHORT).show()
+        }
+
+
+
     }
 
     override fun onCreateView(
@@ -156,9 +172,6 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
             if (::resultTextView2.isInitialized) { // null 체크 추가
                 resultTextView2.text = (context as AppCompatActivity).getString(R.string.high_score_label, highestScore)
             }
-            if (highestScore < score){
-                Toast.makeText(requireContext(), "최고기록 달성 \n 월드랭킹에 자동 등록 됐습니다", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 
@@ -187,6 +200,41 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
 
         }
     }
+    private fun saveScoreToFirebase(user: String, score: Int) {
+        val userRecord = UserRecord()
+        userRecord.setName(user)
+        userRecord.setScore(score.toString())
+        ref.child(user).setValue(userRecord)
+    }
+    private fun checkAndUpdateScore(user: String, currentScore: Int) {
+        ref.child(user).get().addOnSuccessListener {
+            val userRecord = it.getValue(UserRecord::class.java)
+            if (userRecord != null) {
+                val savedScore = userRecord.getScore().toInt()
+
+                if (savedScore < currentScore) {
+                    saveScoreToFirebase(user, currentScore)
+                    Toast.makeText(requireContext() , "월드랭킹 기록 갱신 \n 기록이 업데이트 되었습니다", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                saveScoreToFirebase(user, currentScore)
+                Toast.makeText(requireContext() , "월드랭킹에 최초 등록되었습니다", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            Log.e("firebase", "Error getting data", it)
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

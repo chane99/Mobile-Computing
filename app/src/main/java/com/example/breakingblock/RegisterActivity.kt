@@ -11,6 +11,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -32,10 +33,15 @@ class RegisterActivity : AppCompatActivity() {
         mEtNickname = findViewById(R.id.et_nickname)
         mBtnRegister = findViewById(R.id.btn_newregister)
 
-        mBtnRegister.setOnClickListener(View.OnClickListener {
+        mBtnRegister.setOnClickListener(View.OnClickListener setOnClickListener@{
             val strEmail = mEtEmail.text.toString()
             val strPwd = mEtPw.text.toString()
             val mNickname = mEtNickname.text.toString()
+
+            if (strPwd.length < 6) {
+                Toast.makeText(this@RegisterActivity, "비밀번호는 최소 6자 이상이어야 합니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             // 이메일 중복 확인
             mFirebaseAuth.fetchSignInMethodsForEmail(strEmail)
@@ -64,16 +70,31 @@ class RegisterActivity : AppCompatActivity() {
                                                     account.idToken = firebaseUser?.uid
                                                     account.emailId = firebaseUser?.email
                                                     account.password = strPwd
-                                                    account.nickname = mNickname
+                                                    account.displayName = mNickname
 
                                                     // 데이터베이스에 insert
                                                     mDatabaseRef.child("UserAccount").child(firebaseUser?.uid!!).setValue(account)
 
-                                                    Toast.makeText(this@RegisterActivity, "회원가입에 성공하셨습니다", Toast.LENGTH_SHORT).show()
+                                                    // Firebase 사용자 프로필 업데이트
+                                                    val profileUpdates = UserProfileChangeRequest.Builder()
+                                                        .setDisplayName(mNickname)
+                                                        .build()
 
-                                                    val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
-                                                    startActivity(intent)
-                                                    finish() // 현재 액티비티 종료
+                                                    firebaseUser?.updateProfile(profileUpdates)
+                                                        ?.addOnCompleteListener { profileTask ->
+                                                            if (profileTask.isSuccessful) {
+                                                                // 프로필 업데이트 성공
+                                                                Toast.makeText(this@RegisterActivity, "회원가입에 성공하셨습니다", Toast.LENGTH_SHORT).show()
+
+                                                                val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
+                                                                startActivity(intent)
+                                                                finish() // 현재 액티비티 종료
+                                                            } else {
+                                                                // 프로필 업데이트 실패
+                                                                Toast.makeText(this@RegisterActivity, "프로필 업데이트에 실패하셨습니다", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                        }
+
                                                 } else {
                                                     // 회원가입 실패
                                                     Toast.makeText(this@RegisterActivity, "회원가입에 실패하셨습니다", Toast.LENGTH_SHORT).show()
@@ -93,5 +114,6 @@ class RegisterActivity : AppCompatActivity() {
                     }
                 }
         })
+
     }
 }

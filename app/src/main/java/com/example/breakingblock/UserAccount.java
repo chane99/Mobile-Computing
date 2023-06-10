@@ -6,29 +6,7 @@ public class UserAccount {
     private String emailId;
     private String password;
     private String idToken; //파이어베이스 고유 id
-
-    private String nickname;
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-
-    public String getIdToken() {
-        return idToken;
-    }
-
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
-    }
-
-    public UserAccount(){
-
-    }
+    private String displayName; // 이전에 nickname으로 사용되던 변수를 displayName으로 변경
 
     public String getEmailId() {
         return emailId;
@@ -46,6 +24,19 @@ public class UserAccount {
         this.password = password;
     }
 
+    public String getIdToken() {
+        return idToken;
+    }
 
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
+    }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 }

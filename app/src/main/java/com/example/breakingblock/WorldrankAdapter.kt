@@ -9,18 +9,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class WorldrankAdapter(private val arrayList: ArrayList<WorldrankUser>, private val context: Context) :
+class WorldrankAdapter(private val arrayList: ArrayList<UserRecord>, private val context: Context) :
     RecyclerView.Adapter<WorldrankAdapter.WorldrankViewHolder>() {
 
     inner class WorldrankViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var tv_id: TextView
         var tv_score: TextView
-        var tv_nickname: TextView
+        var tv_displayName: TextView
 
         init {
-            tv_id = itemView.findViewById(R.id.tv_id)
             tv_score = itemView.findViewById(R.id.tv_score)
-            tv_nickname = itemView.findViewById(R.id.tv_nickname)
+            tv_displayName = itemView.findViewById(R.id.tv_displayName)
         }
     }
 
@@ -32,9 +30,8 @@ class WorldrankAdapter(private val arrayList: ArrayList<WorldrankUser>, private 
 
 
     override fun onBindViewHolder(holder: WorldrankViewHolder, position: Int) {
-        holder.tv_id.setText(arrayList.get(position).getId())
-        holder.tv_score.setText((arrayList.get(position).getPw()).toString())
-        holder.tv_nickname.setText(arrayList.get(position).getUserName())
+        holder.tv_score.setText((arrayList.get(position).getScore()).toString())
+        holder.tv_displayName.setText(arrayList.get(position).getName())
     }
 
     override fun getItemCount(): Int {
