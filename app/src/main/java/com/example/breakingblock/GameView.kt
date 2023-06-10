@@ -37,7 +37,7 @@ class GameView(context: Context) : View(context) {
     var originalPaddleWidth: Int = 0
     var isExpanded: Boolean = false
     var startTime: Long = 0
-    val expandDuration: Long = 7 * 1000 // 7 seconds in milliseconds
+    val expandDuration: Long = 5 * 1000 // 5 seconds in milliseconds
 
     var imgBall: Bitmap? = null
     var ballX: Float = 0F
@@ -243,7 +243,7 @@ class GameView(context: Context) : View(context) {
         imgPaddle = BitmapFactory.decodeResource(resources, R.drawable.block_paddle)
         pauseBtn = BitmapFactory.decodeResource(resources, R.drawable.pause_btn)
         originalPaddleWidth = viewWidth / 5
-        paddleWidth = viewWidth / 5
+        paddleWidth = originalPaddleWidth
         paddleHeight = paddleWidth / 4
         paddleX = viewWidth / 2 - paddleWidth / 2
         paddleY = viewHeight - paddleHeight * 2
@@ -260,6 +260,8 @@ class GameView(context: Context) : View(context) {
         longWidth = viewWidth / 7
         longHeight = viewWidth / 7
         longItem = Bitmap.createScaledBitmap(longItem, longWidth, longHeight, false)
+        isExpanded = false
+        startTime = 0 // startTime 초기화
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
         ballDiameter = paddleHeight
@@ -334,8 +336,7 @@ class GameView(context: Context) : View(context) {
 
         m_Arr_BlockList.clear()
         for (row in 0 until blockRowCount) {
-            val w_Block_Y = w_Block_H * row
-            val offsetY = w_Block_Y + 120   // Y좌표에 120을 더해 블록을 아래로 이동
+            val w_Block_Y = w_Block_H * row + 120   // Y좌표에 120을 더해 블록을 아래로 이동
 
             val blockColor = when (row) {
                 0 -> m_Img_Block3    // 빨간색 블록
@@ -349,7 +350,7 @@ class GameView(context: Context) : View(context) {
                     1, 2 -> 2 // 파란색 블록
                     else -> 1  // 노란색 블록
                 }
-                val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
+                val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, w_Block_Y, blockColor, collisionCount)
                 m_Arr_BlockList.add(w_Block)
             }
 
@@ -391,7 +392,7 @@ class GameView(context: Context) : View(context) {
 
         // 기존 블록들을 아래로 이동시키기
         for (block in m_Arr_BlockList) {
-            block.Block_Y += w_Block_H
+            block.Block_Y = block.Block_Y + w_Block_H
         }
 
         // 추가된 행의 블록 생성
@@ -400,8 +401,7 @@ class GameView(context: Context) : View(context) {
 
         for (column in 0 until blockColumnCount) {
             val w_Block_X = w_Block_W * column
-            val w_Block_Y = 0
-            val offsetY = w_Block_Y + 120   // Y좌표에 120을 더해 블록을 아래로 이동
+            val w_Block_Y = 120   // Y좌표에 120을 더해 블록을 아래로 이동
 
             val blockColor = when (random.nextInt(3)) {
                 0 -> m_Img_Block3    // 빨간색 블록
@@ -415,7 +415,7 @@ class GameView(context: Context) : View(context) {
                 else -> 1            // 노란색 블록
             }
 
-            val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
+            val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, w_Block_Y, blockColor, collisionCount)
             additionalBlocks.add(w_Block)
         }
 
@@ -536,7 +536,7 @@ class GameView(context: Context) : View(context) {
                     itemX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
                     itemY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
                 }
-                if (!longActive && Math.random() < 0.05) {
+                if (!longActive && Math.random() < 0.1) {
                     // 확률을 조정하여 롱아이템이 생성되는 빈도를 조절할 수 있습니다.
                     // 여기서는 5%의 확률로 아이템이 생성되도록 설정하였습니다.
                     longActive = true
@@ -602,13 +602,16 @@ class GameView(context: Context) : View(context) {
                     longActive = false  // 아이템 비활성화
                 }
             }
-            // 패들의 상태를 업데이트
-            if (isExpanded && System.currentTimeMillis() - startTime >= expandDuration) {
-                paddleWidth = originalPaddleWidth
-                imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
-                isExpanded = false
-                startTime = 0 // startTime 초기화
-            }
+
+        }
+        // 패들의 상태를 업데이트
+        if (isExpanded && System.currentTimeMillis() - startTime >= expandDuration) {
+            isExpanded = false
+        }
+        if (!isExpanded) {
+            paddleWidth = originalPaddleWidth
+            imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
+            startTime = 0 // startTime 초기화
         }
     }
 

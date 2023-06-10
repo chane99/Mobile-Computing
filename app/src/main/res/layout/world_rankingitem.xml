@@ -12,25 +12,34 @@
             android:layout_height="80dp"
             android:layout_margin="5dp"
             android:src="@drawable/ic_launcher_background"/>
-        
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:orientation="vertical">
-
+            android:orientation="horizontal"
+            android:layout_gravity="center">
             <TextView
-                android:id="@+id/tv_score"
+                android:id="@+id/tv_rank"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="비밀번호"
-                android:layout_margin="5dp"/>
+                android:text="1등"
+                android:textSize="20sp"
+                android:layout_margin="10dp"/>
             <TextView
                 android:id="@+id/tv_displayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="kingmingseo"
-                android:layout_margin="5dp"/>
+                android:textSize="20sp"
+                android:layout_margin="10dp"/>
+            <TextView
+                android:id="@+id/tv_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="비밀번호"
+                android:textSize="20sp"
+                android:layout_margin="10dp"/>
 
         </LinearLayout>
     </LinearLayout>

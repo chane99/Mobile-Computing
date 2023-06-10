@@ -13,10 +13,12 @@ class WorldrankAdapter(private val arrayList: ArrayList<UserRecord>, private val
     RecyclerView.Adapter<WorldrankAdapter.WorldrankViewHolder>() {
 
     inner class WorldrankViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var tv_rank: TextView
         var tv_score: TextView
         var tv_displayName: TextView
 
         init {
+            tv_rank = itemView.findViewById(R.id.tv_rank)
             tv_score = itemView.findViewById(R.id.tv_score)
             tv_displayName = itemView.findViewById(R.id.tv_displayName)
         }
@@ -30,7 +32,8 @@ class WorldrankAdapter(private val arrayList: ArrayList<UserRecord>, private val
 
 
     override fun onBindViewHolder(holder: WorldrankViewHolder, position: Int) {
-        holder.tv_score.setText((arrayList.get(position).getScore()).toString())
+        holder.tv_rank.setText((position+1).toString() + "등")
+        holder.tv_score.setText((arrayList.get(position).getScore()).toString()+ "점")
         holder.tv_displayName.setText(arrayList.get(position).getName())
     }
 
