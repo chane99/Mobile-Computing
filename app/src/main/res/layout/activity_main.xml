@@ -16,12 +16,19 @@
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:layout_width="470dp"
+        android:layout_height="781dp"
+        android:background="@drawable/img_3"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="-3dp" />
 
-    <Button
+   <Button
         android:id="@+id/gamestart"
-        android:layout_width="150dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="400dp"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="350dp"
+        android:background="@color/white"
         android:text="@string/game_start"
         app:layout_constraintBottom_toTopOf="@+id/localrank"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,13 +36,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <Button
         android:id="@+id/localrank"
-        android:layout_width="150dp"
-        android:layout_height="56dp"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
+        android:background="@color/white"
         android:text="@string/rank"
         app:layout_constraintBottom_toTopOf="@+id/worldrank"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,8 +52,10 @@
 
     <Button
         android:id="@+id/worldrank"
-        android:layout_width="150dp"
-        android:layout_height="56dp"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@color/white"
         android:text="@string/worldRank"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
@@ -55,9 +64,10 @@
 
     <Button
         android:id="@+id/login"
-        android:layout_width="150dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@color/white"
         android:text="LOGIN"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
@@ -66,10 +76,13 @@
 
     <Button
         android:id="@+id/logout"
-        android:layout_width="150dp"
-        android:layout_height="56dp"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@color/white"
         android:text="LOGOUT"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login" />
 
