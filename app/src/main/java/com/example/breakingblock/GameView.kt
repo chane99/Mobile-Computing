@@ -34,6 +34,10 @@ class GameView(context: Context) : View(context) {
 
     var paddleWidth: Int = 0
     var paddleHeight: Int = 0
+    var originalPaddleWidth: Int = 0
+    var isExpanded: Boolean = false
+    var startTime: Long = 0
+    val expandDuration: Long = 7 * 1000 // 7 seconds in milliseconds
 
     var imgBall: Bitmap? = null
     var ballX: Float = 0F
@@ -56,6 +60,13 @@ class GameView(context: Context) : View(context) {
     var isPlay: Boolean = false
 
     var score: Int = 0 // 점수 초기화
+
+    var longX :Float =0F // 롱아이템의 X 좌표
+    var longY :Float =0F // 롱아이템의 Y 좌표
+    var longWidth: Int = 0
+    var longHeight: Int = 0
+    var longActive = false // 롱아이템 활성화 여부
+    lateinit var longItem: Bitmap
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -92,7 +103,7 @@ class GameView(context: Context) : View(context) {
          val paint = Paint()
         paint.setColor(Color.RED)
 
-//item 생성
+        //item 생성
         if (itemActive) {
             val starPath = Path()
             val radius = itemRadius.toFloat()
@@ -111,6 +122,11 @@ class GameView(context: Context) : View(context) {
             starPath.close()
 
             canvas.drawPath(starPath, paint)
+        }
+
+        // 롱아이템 그리기
+        if (longActive && longItem != null) {
+            canvas?.drawBitmap(longItem!!, longX, longY, null)
         }
 
         // 초기화
@@ -218,15 +234,11 @@ class GameView(context: Context) : View(context) {
     }
 
 
-
-
-
-
-
     private fun func_Setting() {
         imgPaddle = BitmapFactory.decodeResource(resources, R.drawable.block_paddle)
         pauseBtn = BitmapFactory.decodeResource(resources, R.drawable.pause_btn)
-        paddleWidth = viewWidth / 5
+        originalPaddleWidth = viewWidth / 5
+        paddleWidth = originalPaddleWidth
         paddleHeight = paddleWidth / 4
         paddleX = viewWidth / 2 - paddleWidth / 2
         paddleY = viewHeight - paddleHeight * 2
@@ -239,6 +251,11 @@ class GameView(context: Context) : View(context) {
         lives = 3
         score = 0
         pauseBtnPressed = false
+        longItem = BitmapFactory.decodeResource(resources, R.drawable.long_item)
+        longWidth = viewWidth / 7
+        longHeight = viewWidth / 7
+        longItem = Bitmap.createScaledBitmap(longItem, longWidth, longHeight, false)
+
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
         ballDiameter = paddleHeight
@@ -326,9 +343,8 @@ class GameView(context: Context) : View(context) {
                 val w_Block = Block(w_Block_W, w_Block_H, w_Block_X, offsetY, blockColor, collisionCount)
                 m_Arr_BlockList.add(w_Block)
             }
-
         }
-        val random = Random()
+
         val blueBlocks = m_Arr_BlockList.filter { it.collisionCount == 2 && it.img == m_Img_Block2 }
             .shuffled()
             .take(7)
@@ -503,12 +519,19 @@ class GameView(context: Context) : View(context) {
             }
             if (w_Block.collisionCount <= 0) {
                 blocksToRemove.add(w_Block)
-                if (!itemActive && Math.random() < 1) {
+                if (!itemActive && Math.random() < 0.03) {
                     // 확률을 조정하여 아이템이 생성되는 빈도를 조절할 수 있습니다.
-                    // 여기서는 1%의 확률로 아이템이 생성되도록 설정하였습니다.
+                    // 여기서는 3%의 확률로 아이템이 생성되도록 설정하였습니다.
                     itemActive = true
                     itemX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
                     itemY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
+                }
+                if (!longActive && Math.random() < 0.05) {
+                    // 확률을 조정하여 롱아이템이 생성되는 빈도를 조절할 수 있습니다.
+                    // 여기서는 5%의 확률로 아이템이 생성되도록 설정하였습니다.
+                    longActive = true
+                    longX= w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
+                    longY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
                 }
                 score += 1 // 블럭이 사라질 때마다 점수 1점 추가
             }
@@ -548,6 +571,35 @@ class GameView(context: Context) : View(context) {
                 }
             }
         }
+
+        if (longActive) {
+            longY += 10
+            // 롱아이템이 화면 아래로 벗어나면 비활성화
+            if (longY > viewHeight) {
+                longActive = false
+            } else {
+                // 롱아이템과 패들의 충돌 체크
+                if (longY + longHeight >= paddleY &&
+                    longY <= paddleY + paddleHeight &&
+                    longX + longWidth >= paddleX &&
+                    longX <= paddleX + paddleWidth
+                ) {
+                    // 아이템이 패들과 충돌하면 패들 길이 증가
+                    paddleWidth = viewWidth / 3
+                    imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
+                    startTime = System.currentTimeMillis()
+                    isExpanded = true
+                    longActive = false  // 아이템 비활성화
+                }
+            }
+            // 패들의 상태를 업데이트
+            if (isExpanded && System.currentTimeMillis() - startTime >= expandDuration) {
+                paddleWidth = originalPaddleWidth
+                imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
+                isExpanded = false
+                startTime = 0 // startTime 초기화
+            }
+        }
     }
 
 
@@ -558,6 +610,4 @@ class GameView(context: Context) : View(context) {
             if (isEnd) handlerViewReload(0)
         }, delayTime)
     }
-
-
 }
