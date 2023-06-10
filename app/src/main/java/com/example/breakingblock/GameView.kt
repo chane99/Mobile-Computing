@@ -67,6 +67,13 @@ class GameView(context: Context) : View(context) {
     var longHeight: Int = 0
     var longActive = false // 롱아이템 활성화 여부
     lateinit var longItem: Bitmap
+    
+    lateinit var superItem:Bitmap
+    var superActive=false
+    var superX:Float=0F
+    var superY:Float=0F
+    var superWidth:Int=0
+    var superHeight:Int=0
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -127,6 +134,10 @@ class GameView(context: Context) : View(context) {
         // 롱아이템 그리기
         if (longActive && longItem != null) {
             canvas?.drawBitmap(longItem!!, longX, longY, null)
+        }
+        
+         if(superActive && superItem !=null){
+            canvas?.drawBitmap(superItem!!,superX,superY,null)
         }
 
         // 초기화
@@ -262,6 +273,10 @@ class GameView(context: Context) : View(context) {
         longItem = Bitmap.createScaledBitmap(longItem, longWidth, longHeight, false)
         isExpanded = false
         startTime = 0 // startTime 초기화
+        superItem=BitmapFactory.decodeResource(resources, R.drawable.skeleton)
+        superWidth=viewWidth/7
+        superHeight=viewWidth/7
+        superItem=Bitmap.createScaledBitmap(superItem, superWidth, superHeight, false)
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
         ballDiameter = viewWidth / 21  // 블럭의 높이와 동일
@@ -540,6 +555,12 @@ class GameView(context: Context) : View(context) {
                     longX= w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
                     longY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
                 }
+                 if (!superActive && Math.random() < 0.1) {
+                
+                    superActive = true
+                    superX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
+                    superY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
+                }
                 score += 1 // 블럭이 사라질 때마다 점수 1점 추가
             }
         }
@@ -598,6 +619,29 @@ class GameView(context: Context) : View(context) {
                 }
             }
 
+        }
+        if(superActive){
+            superY+=10
+            if(superY>viewHeight){
+                superActive=false
+            }else{
+                if(superY+longHeight>=paddleY &&
+                        superY <=paddleY+paddleHeight&&
+                        superX + superWidth>=paddleX&&
+                        superX <=paddleX+paddleWidth){
+
+                    if(lives<=3){
+                        lives--
+                        if(lives==0){
+                            func_Reset()
+                        }
+                    }
+
+                    superActive = false  // 아이템 비활성화
+
+
+                }
+            }
         }
         // 패들의 상태를 업데이트
         if (isExpanded && System.currentTimeMillis() - startTime >= expandDuration) {
