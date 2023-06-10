@@ -20,19 +20,13 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="아이디"
-                android:layout_margin="5dp"/>
-            <TextView
                 android:id="@+id/tv_score"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="비밀번호"
                 android:layout_margin="5dp"/>
             <TextView
-                android:id="@+id/tv_nickname"
+                android:id="@+id/tv_displayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="kingmingseo"
