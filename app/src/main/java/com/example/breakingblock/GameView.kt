@@ -10,6 +10,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.max
+import kotlin.math.min
 
 
 class GameView(context: Context) : View(context) {
@@ -21,8 +23,6 @@ class GameView(context: Context) : View(context) {
     var lives: Int = 3
     var viewWidth: Int = 0
     var viewHeight: Int = 0
-    var itemX :Float =0F // 아이템의 X 좌표
-    var itemY :Float =0F // 아이템의 Y 좌표
     var itemActive = false  // 아이템이 활성화 상태인지 여부
     val itemRadius = 30    // 아이템의 반지름
 
@@ -60,14 +60,17 @@ class GameView(context: Context) : View(context) {
     var isPlay: Boolean = false
 
     var score: Int = 0 // 점수 초기화
-
+    var heartX :Float =0F // 목숨아이템의 X 좌표
+    var heartY :Float =0F // 목숨아이템의 Y 좌표
     var longX :Float =0F // 롱아이템의 X 좌표
     var longY :Float =0F // 롱아이템의 Y 좌표
     var longWidth: Int = 0
     var longHeight: Int = 0
+    var heartWidth: Int = 0
+    var heartHeight: Int = 0
     var longActive = false // 롱아이템 활성화 여부
     lateinit var longItem: Bitmap
-    
+    lateinit var heartItem: Bitmap
     lateinit var superItem:Bitmap
     var superActive=false
     var superX:Float=0F
@@ -112,23 +115,7 @@ class GameView(context: Context) : View(context) {
 
         //item 생성
         if (itemActive) {
-            val starPath = Path()
-            val radius = itemRadius.toFloat()
-
-            // 별 모양을 그리는 경로를 생성합니다.
-            starPath.moveTo(itemX.toFloat(), itemY.toFloat() - radius)
-            starPath.lineTo(itemX.toFloat() + 0.4f * radius, itemY.toFloat() - 0.4f * radius)
-            starPath.lineTo(itemX.toFloat() + radius, itemY.toFloat() - 0.4f * radius)
-            starPath.lineTo(itemX.toFloat() + 0.5f * radius, itemY.toFloat() + 0.4f * radius)
-            starPath.lineTo(itemX.toFloat() + 0.8f * radius, itemY.toFloat() + radius)
-            starPath.lineTo(itemX.toFloat(), itemY.toFloat() + 0.6f * radius)
-            starPath.lineTo(itemX.toFloat() - 0.8f * radius, itemY.toFloat() + radius)
-            starPath.lineTo(itemX.toFloat() - 0.5f * radius, itemY.toFloat() + 0.4f * radius)
-            starPath.lineTo(itemX.toFloat() - radius, itemY.toFloat() - 0.4f * radius)
-            starPath.lineTo(itemX.toFloat() - 0.4f * radius, itemY.toFloat() - 0.4f * radius)
-            starPath.close()
-
-            canvas.drawPath(starPath, paint)
+            canvas.drawBitmap(heartItem, heartX, heartY,null)
         }
 
         // 롱아이템 그리기
@@ -142,19 +129,24 @@ class GameView(context: Context) : View(context) {
 
         // 초기화
         val heartDrawable = resources.getDrawable(R.drawable.life, null)
-        val heartWidth = 100
-        val heartHeight = 100
+        val heartWidth = 80
+        val heartHeight = 80
+
+        val verticalGap = 15
 
         for (i in 0 until lives) {
-            val xPosition = i * (heartWidth + 10) // 10은 가로 간격을 의미합니다. 원하는 대로 조정하세요.
-            heartDrawable.setBounds(xPosition, 0, xPosition + heartWidth, heartHeight)
+            val xPosition = i * (heartWidth + 10) + 10 * (i + 1)
+            val yPosition = verticalGap + heartHeight
+
+            heartDrawable.setBounds(xPosition, yPosition - heartHeight, xPosition + heartWidth, yPosition)
             heartDrawable.draw(canvas)
         }
+
 
         // 점수 표시
         val scoreText = "점수: $score"
         val scorePaint = Paint()
-        scorePaint.color = Color.RED
+        scorePaint.color = Color.BLACK
         scorePaint.textSize = 70f
         val textWidth = scorePaint.measureText(scoreText)
         val x = (width - textWidth) / 2
@@ -267,6 +259,11 @@ class GameView(context: Context) : View(context) {
         lives = 3
         score = 0
         pauseBtnPressed = false
+        heartItem = BitmapFactory.decodeResource(resources, R.drawable.life)
+        heartWidth = viewWidth / 14
+        heartHeight = viewWidth / 14
+        heartItem = Bitmap.createScaledBitmap(heartItem, heartWidth, heartHeight, false)
+
         longItem = BitmapFactory.decodeResource(resources, R.drawable.long_item)
         longWidth = viewWidth / 7
         longHeight = viewWidth / 7
@@ -274,8 +271,8 @@ class GameView(context: Context) : View(context) {
         isExpanded = false
         startTime = 0 // startTime 초기화
         superItem=BitmapFactory.decodeResource(resources, R.drawable.skeleton)
-        superWidth=viewWidth/7
-        superHeight=viewWidth/7
+        superWidth=viewWidth/10
+        superHeight=viewWidth/10
         superItem=Bitmap.createScaledBitmap(superItem, superWidth, superHeight, false)
 
         val tempBitmap = BitmapFactory.decodeResource(resources, R.drawable.block_ball)
@@ -442,17 +439,24 @@ class GameView(context: Context) : View(context) {
             ballX += ballSpeedX
             ballY += ballSpeedY
 
-            if (ballX <= 0 || ballX >= viewWidth - ballDiameter) {
+            if (ballX <= 0) {
                 ballSpeedX *= -1
+                ballX = 0F
+            } else if (ballX >= viewWidth - ballDiameter) {
+                ballSpeedX *= -1
+                ballX = (viewWidth - ballDiameter).toFloat()
             }
+
             if (ballY <= 0) {
                 ballSpeedY *= -1
-            }
-            if (ballY >= viewHeight) {
+                ballY = 0F
+            } else if (ballY >= viewHeight) {
                 func_Reset()
             }
         }
     }
+
+
 
 
     //패들 충돌 확인
@@ -541,12 +545,12 @@ class GameView(context: Context) : View(context) {
             }
             if (w_Block.collisionCount <= 0) {
                 blocksToRemove.add(w_Block)
-                if (!itemActive && Math.random() < 0.03) {
+                if (!itemActive && Math.random() < 1) {
                     // 확률을 조정하여 아이템이 생성되는 빈도를 조절할 수 있습니다.
                     // 여기서는 3%의 확률로 아이템이 생성되도록 설정하였습니다.
                     itemActive = true
-                    itemX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
-                    itemY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
+                    heartX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
+                    heartY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
                 }
                 if (!longActive && Math.random() < 0.1) {
                     // 확률을 조정하여 롱아이템이 생성되는 빈도를 조절할 수 있습니다.
@@ -579,15 +583,15 @@ class GameView(context: Context) : View(context) {
 
 
         if (itemActive) {
-            itemY += 10
+            heartY += 10
             // 아이템이 화면 아래로 벗어나면 비활성화
-            if (itemY > viewHeight) {
+            if (heartY > viewHeight) {
                 itemActive = false
             } else {
                 // 아이템과 패들의 충돌 체크
-                if (itemY + itemRadius >= paddleY &&
-                    itemX + itemRadius >= paddleX &&
-                    itemX - itemRadius <= paddleX + paddleWidth
+                if (heartY + itemRadius >= paddleY &&
+                    heartX + itemRadius >= paddleX &&
+                    heartX - itemRadius <= paddleX + paddleWidth
                 ) {
                     // 아이템이 패들과 충돌하면 목숨 회복
                     if (lives < 3) {

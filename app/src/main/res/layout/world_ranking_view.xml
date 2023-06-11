@@ -5,7 +5,7 @@
     android:orientation="vertical">
     <TextView
         android:textSize="30sp"
-        android:text="@string/순위표"
+        android:text="월드 랭킹"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
