@@ -3,6 +3,7 @@ package com.example.breakingblock
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
+import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
@@ -25,7 +26,7 @@ class GameView(context: Context) : View(context) {
     var viewHeight: Int = 0
     var itemActive = false  // 아이템이 활성화 상태인지 여부
     val itemRadius = 30    // 아이템의 반지름
-
+    val pop = MediaPlayer.create(context, R.raw.pop)
     lateinit var imgPaddle: Bitmap
     lateinit var pauseBtn: Bitmap
 
@@ -78,11 +79,15 @@ class GameView(context: Context) : View(context) {
     var superWidth:Int=0
     var superHeight:Int=0
 
+
+
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         viewHeight = h
         viewWidth = w
         func_Setting()
+
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -295,17 +300,12 @@ class GameView(context: Context) : View(context) {
         lives -= 1
         if (lives <= 0) {
             isPlay = false
+            val sound = MediaPlayer.create(context, R.raw.fail)
+            sound.setVolume(1.0F, 1.0F)
+            sound.start()
+            sound.setOnCompletionListener { mediaPlayer -> mediaPlayer.release() }
+        showFinishview()
 
-            val dialogFragment = FinishDialogFragment(score)
-            dialogFragment.show((context as AppCompatActivity).supportFragmentManager, "FinishDialog")
-
-            dialogFragment.setOnExitClickListener {
-                val intent = Intent(context, MainActivity::class.java)
-                context.startActivity(intent)
-            }
-            dialogFragment.setOnRetryClickListener {
-                func_Setting()
-            }
         } else {
             isPlay = false
 
@@ -402,6 +402,10 @@ class GameView(context: Context) : View(context) {
         // 기존 블록들을 아래로 이동시키기
         for (block in m_Arr_BlockList) {
             block.Block_Y = block.Block_Y + w_Block_H
+            if (block.Block_Y >= 2.5*paddleY) {
+                showFinishview()
+
+            }
         }
 
         // 추가된 행의 블록 생성
@@ -533,11 +537,14 @@ class GameView(context: Context) : View(context) {
             when (w_BlockCheck) {
                 0 -> continue
                 1, 2 -> {
+                    pop.start()
                     ballSpeedX *= -1
                     w_Block.collisionCount--
                     collisionOccurred = true
+
                 }
                 3, 4 -> {
+                    pop.start()
                     ballSpeedY *= -1
                     w_Block.collisionCount--
                     collisionOccurred = true
@@ -572,9 +579,10 @@ class GameView(context: Context) : View(context) {
 
         m_Arr_BlockList.removeAll(blocksToRemove)
 
-        // 블럭 개수 28개보다 줄어들면 블럭 한 줄(7개) 추가
-        if (m_Arr_BlockList.size < 28) {
+        // 블럭 개수 35개보다 줄어들면 블럭 한 줄(7개) 추가
+        if (m_Arr_BlockList.size < 35) {
             addAdditionalBlocks()
+
         }
 
         if (collisionOccurred) {
@@ -593,7 +601,11 @@ class GameView(context: Context) : View(context) {
                 if (heartY + itemRadius >= paddleY &&
                     heartX + itemRadius >= paddleX &&
                     heartX - itemRadius <= paddleX + paddleWidth
+
                 ) {
+                    val sound = MediaPlayer.create(context, R.raw.item)
+                    sound.setVolume(1.0F, 1.0F)
+                    sound.start()
                     // 아이템이 패들과 충돌하면 목숨 회복
                     if (lives < 3) {
                         lives++
@@ -615,6 +627,9 @@ class GameView(context: Context) : View(context) {
                     longX + longWidth >= paddleX &&
                     longX <= paddleX + paddleWidth
                 ) {
+                    val sound = MediaPlayer.create(context, R.raw.item)
+                    sound.setVolume(1.0F, 1.0F)
+                    sound.start()
                     // 아이템이 패들과 충돌하면 패들 길이 증가
                     paddleWidth = viewWidth / 3
                     imgPaddle = Bitmap.createScaledBitmap(imgPaddle, paddleWidth, paddleHeight, false)
@@ -634,6 +649,10 @@ class GameView(context: Context) : View(context) {
                         superY <=paddleY+paddleHeight&&
                         superX + superWidth>=paddleX&&
                         superX <=paddleX+paddleWidth){
+                    val sound = MediaPlayer.create(context, R.raw.boom1)
+                    sound.setVolume(1.0F, 1.0F)
+                    sound.start()
+
 
                     if(lives<=3){
                         lives--
@@ -666,6 +685,19 @@ class GameView(context: Context) : View(context) {
             invalidate()
             if (isEnd) handlerViewReload(0)
         }, delayTime)
+    }
+
+    private fun showFinishview(){
+        val dialogFragment = FinishDialogFragment(score)
+        dialogFragment.show((context as AppCompatActivity).supportFragmentManager, "FinishDialog")
+
+        dialogFragment.setOnExitClickListener {
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+        }
+        dialogFragment.setOnRetryClickListener {
+            func_Setting()
+        }
     }
 
 
