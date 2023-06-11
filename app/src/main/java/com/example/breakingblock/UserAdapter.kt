@@ -5,9 +5,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.breakingblock.databinding.LocalRankingitemBinding
 import com.example.breakingblock.roomdb.User
 
-class UserAdapter(private var dataSet: MutableList<User>) : RecyclerView.Adapter<UserAdapter.MyViewHolder>() {
+class UserAdapter(private var dataSet: MutableList<User>,
+                  private val onItemClickListener: OnItemClickListener) : RecyclerView.Adapter<UserAdapter.MyViewHolder>() {
 
     class MyViewHolder(val binding: LocalRankingitemBinding) : RecyclerView.ViewHolder(binding.root)
+
+    interface OnItemClickListener {
+        fun onItemLongClick(user: User)
+    }
 
     override fun getItemCount(): Int {
         return if (dataSet.isEmpty()) {
@@ -41,6 +46,11 @@ class UserAdapter(private var dataSet: MutableList<User>) : RecyclerView.Adapter
             binding.uniqueid.text = "$rank 등"
             binding.nickname.text = user.name
             binding.score.text = "${user.score}점"
+
+            binding.root.setOnLongClickListener {
+                onItemClickListener.onItemLongClick(user) // 클릭 리스너 호출
+                true
+            }
         }
     }
 
@@ -48,6 +58,14 @@ class UserAdapter(private var dataSet: MutableList<User>) : RecyclerView.Adapter
         this.dataSet = newList
         Log.d("UserAdapter", "Data set: $newList")
         notifyDataSetChanged()
+    }
+
+    fun deleteSelectScore(user: User): Int {
+        val position = dataSet.indexOf(user)
+        if (position != -1) {
+            dataSet.removeAt(position)
+        }
+        return position
     }
 
     companion object {
