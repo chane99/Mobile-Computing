@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.breakingblock.databinding.ActivityMainBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
+import com.example.breakingblock.roomdb.User
 import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.coroutines.*
@@ -55,7 +56,20 @@ class MainActivity : Activity() {
 
         // 로컬 랭킹 버튼 클릭시
         binding.localrank.setOnClickListener {
-            adapter = UserAdapter(mutableListOf())
+            adapter = UserAdapter(mutableListOf(), object : UserAdapter.OnItemClickListener {
+            override fun onItemLongClick(user: User) {
+                // 데이터베이스에서 해당 행 삭제 로직 구현
+                CoroutineScope(Dispatchers.IO).launch {
+                    db!!.scoreDao().delete(user)
+                }
+                // dataSet에서도 삭제할 수 있도록 처리
+                val position = adapter.deleteSelectScore(user)
+                if (position != -1) {
+                    adapter.notifyItemRemoved(position)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        })
             CoroutineScope(Dispatchers.Main).launch {
                 val dialogView = layoutInflater.inflate(R.layout.local_ranking_view, null)
                 val dialog = AlertDialog.Builder(this@MainActivity)
@@ -96,14 +110,17 @@ class MainActivity : Activity() {
 
         }
 
-
-
-
-
     }
 
 
 
+    private fun deleteRowFromDatabase(user: User) {
+        val scoreDao = ScoreDatabase.getInstance(this)?.scoreDao()
+        scoreDao?.let {
+            it.delete(user)
+            adapter.setList(it.selectAll())
+        }
+    }
 
 
     override fun onPause() {
