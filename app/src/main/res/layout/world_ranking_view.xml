@@ -4,14 +4,18 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <TextView
-        android:textSize="30sp"
+        android:textSize="40sp"
         android:text="월드 랭킹"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="30dp"/>
+        android:textColor="@color/black"
+        android:layout_marginTop="80dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/world_ranking_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="493dp"
+        android:layout_margin="40dp"
+        android:background="@drawable/rounded_background_with_shadow" />
 </LinearLayout>

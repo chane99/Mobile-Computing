@@ -4,7 +4,7 @@
         <!-- Primary brand color. -->
         <item name="windowNoTitle">true</item>              <!--액션 바 제거 -->
         <item name="android:windowFullscreen">true</item>   <!--상단바 제거 -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/dark_gray</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
