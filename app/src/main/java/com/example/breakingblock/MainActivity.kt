@@ -58,16 +58,28 @@ class MainActivity : Activity() {
         binding.localrank.setOnClickListener {
             adapter = UserAdapter(mutableListOf(), object : UserAdapter.OnItemClickListener {
             override fun onItemLongClick(user: User) {
-                // 데이터베이스에서 해당 행 삭제 로직 구현
-                CoroutineScope(Dispatchers.IO).launch {
-                    db!!.scoreDao().delete(user)
-                }
-                // dataSet에서도 삭제할 수 있도록 처리
-                val position = adapter.deleteSelectScore(user)
-                if (position != -1) {
-                    adapter.notifyItemRemoved(position)
-                    adapter.notifyDataSetChanged()
-                }
+                val alertDialog = AlertDialog.Builder(this@MainActivity)
+                    .setTitle("기록 삭제")
+                    .setMessage("정말로 삭제하시겠습니까?")
+                    .setPositiveButton("예") { dialog, _ ->
+                        // 데이터베이스에서 해당 행 삭제 로직 구현
+                        CoroutineScope(Dispatchers.IO).launch {
+                            db!!.scoreDao().delete(user)
+                        }
+                        // dataSet에서도 삭제할 수 있도록 처리
+                        val position = adapter.deleteSelectScore(user)
+                        if (position != -1) {
+                            adapter.notifyItemRemoved(position)
+                            adapter.notifyDataSetChanged() // 데이터셋 변경을 어댑터에 알림
+                        }
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("아니오") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .create()
+
+                alertDialog.show()
             }
         })
             CoroutineScope(Dispatchers.Main).launch {
