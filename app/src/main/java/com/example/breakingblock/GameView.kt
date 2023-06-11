@@ -545,22 +545,23 @@ class GameView(context: Context) : View(context) {
             }
             if (w_Block.collisionCount <= 0) {
                 blocksToRemove.add(w_Block)
-                if (!itemActive && Math.random() < 1) {
+                if (!itemActive && Math.random() < 0.1) {
                     // 확률을 조정하여 아이템이 생성되는 빈도를 조절할 수 있습니다.
-                    // 여기서는 3%의 확률로 아이템이 생성되도록 설정하였습니다.
+                    // 여기서는 10%의 확률로 아이템이 생성되도록 설정하였습니다.
                     itemActive = true
                     heartX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
                     heartY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
                 }
                 if (!longActive && Math.random() < 0.1) {
                     // 확률을 조정하여 롱아이템이 생성되는 빈도를 조절할 수 있습니다.
-                    // 여기서는 5%의 확률로 아이템이 생성되도록 설정하였습니다.
+                    // 여기서는 10%의 확률로 아이템이 생성되도록 설정하였습니다.
                     longActive = true
                     longX= w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
                     longY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)
                 }
                  if (!superActive && Math.random() < 0.1) {
-                
+                     // 확률을 조정하여 슈퍼아이템이 생성되는 빈도를 조절할 수 있습니다.
+                     // 여기서는 10%의 확률로 아이템이 생성되도록 설정하였습니다.
                     superActive = true
                     superX = w_Block.Block_X.toFloat() + (w_Block.Block_W / 2)
                     superY = w_Block.Block_Y.toFloat() + (w_Block.Block_H / 2)

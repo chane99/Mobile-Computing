@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
@@ -35,6 +36,13 @@ class WorldrankAdapter(private val arrayList: ArrayList<UserRecord>, private val
         holder.tv_rank.setText((position+1).toString() + "등")
         holder.tv_score.setText((arrayList.get(position).getScore()).toString()+ "점")
         holder.tv_displayName.setText(arrayList.get(position).getName())
+
+        // 홀수 번째 행과 짝수 번째 행의 배경색을 구분하여 설정
+        if (position % 2 == 0) {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.white))
+        } else {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.light_gray))
+        }
     }
 
     override fun getItemCount(): Int {
