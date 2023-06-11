@@ -30,10 +30,6 @@ class MainActivity : Activity() {
     private lateinit var mFirebaseAuth: FirebaseAuth // 파이어베이스 인증처리
 
 
-
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -47,7 +43,6 @@ class MainActivity : Activity() {
         bgmPlayer?.isLooping = true
 
 
-
         // 게임 스타트 버튼 클릭시
         binding.gamestart.setOnClickListener {
             val intent = Intent(this, GameViewActivity::class.java)
@@ -57,38 +52,39 @@ class MainActivity : Activity() {
         // 로컬 랭킹 버튼 클릭시
         binding.localrank.setOnClickListener {
             adapter = UserAdapter(mutableListOf(), object : UserAdapter.OnItemClickListener {
-            override fun onItemLongClick(user: User) {
-                val alertDialog = AlertDialog.Builder(this@MainActivity)
-                    .setTitle("기록 삭제")
-                    .setMessage("정말로 삭제하시겠습니까?")
-                    .setPositiveButton("예") { dialog, _ ->
-                        // 데이터베이스에서 해당 행 삭제 로직 구현
-                        CoroutineScope(Dispatchers.IO).launch {
-                            db!!.scoreDao().delete(user)
+                override fun onItemLongClick(user: User) {
+                    val alertDialog = AlertDialog.Builder(this@MainActivity)
+                        .setTitle("기록 삭제")
+                        .setMessage("정말로 삭제하시겠습니까?")
+                        .setPositiveButton("예") { dialog, _ ->
+                            // 데이터베이스에서 해당 행 삭제 로직 구현
+                            CoroutineScope(Dispatchers.IO).launch {
+                                db!!.scoreDao().delete(user)
+                            }
+                            // dataSet에서도 삭제할 수 있도록 처리
+                            val position = adapter.deleteSelectScore(user)
+                            if (position != -1) {
+                                adapter.notifyItemRemoved(position)
+                                adapter.notifyDataSetChanged() // 데이터셋 변경을 어댑터에 알림
+                            }
+                            dialog.dismiss()
                         }
-                        // dataSet에서도 삭제할 수 있도록 처리
-                        val position = adapter.deleteSelectScore(user)
-                        if (position != -1) {
-                            adapter.notifyItemRemoved(position)
-                            adapter.notifyDataSetChanged() // 데이터셋 변경을 어댑터에 알림
+                        .setNegativeButton("아니오") { dialog, _ ->
+                            dialog.dismiss()
                         }
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton("아니오") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
+                        .create()
 
-                alertDialog.show()
-            }
-        })
+                    alertDialog.show()
+                }
+            })
             CoroutineScope(Dispatchers.Main).launch {
                 val dialogView = layoutInflater.inflate(R.layout.local_ranking_view, null)
                 val dialog = AlertDialog.Builder(this@MainActivity)
                     .setView(dialogView)
                     .create()
-                val recyclerView = dialogView.findViewById<RecyclerView>(R.id.localrank_recycler_view)
-                val userList =CoroutineScope(Dispatchers.IO).async {
+                val recyclerView =
+                    dialogView.findViewById<RecyclerView>(R.id.localrank_recycler_view)
+                val userList = CoroutineScope(Dispatchers.IO).async {
                     db!!.scoreDao().selectAll()
                 }.await()
                 Log.d("메인코드", "Data 세트: $userList")
@@ -97,7 +93,12 @@ class MainActivity : Activity() {
                     recyclerView.adapter = adapter
                 }
                 recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity, LinearLayoutManager.VERTICAL))
+                recyclerView.addItemDecoration(
+                    DividerItemDecoration(
+                        this@MainActivity,
+                        LinearLayoutManager.VERTICAL
+                    )
+                )
 
                 dialog.show()
             }
@@ -106,24 +107,22 @@ class MainActivity : Activity() {
             val intent = Intent(this, WorldrankActivity::class.java)
             startActivity(intent)
         }
-        binding.login.setOnClickListener{
+        binding.login.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
-        binding.logout.setOnClickListener{
-            binding.logout.setOnClickListener {
-                mFirebaseAuth.signOut()
-                if (mFirebaseAuth.currentUser == null) {
-                    Toast.makeText(this@MainActivity, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@MainActivity, "로그아웃에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                }
-            }
 
+        binding.logout.setOnClickListener {
+            mFirebaseAuth.signOut()
+            if (mFirebaseAuth.currentUser == null) {
+                Toast.makeText(this@MainActivity, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@MainActivity, "로그아웃에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
 
-    }
 
+    }
 
 
     private fun deleteRowFromDatabase(user: User) {

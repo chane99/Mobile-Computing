@@ -16,12 +16,7 @@
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <ImageView
-        android:layout_width="470dp"
-        android:layout_height="781dp"
-        android:background="@drawable/img_3"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="-3dp" />
+
 
    <Button
         android:id="@+id/gamestart"
