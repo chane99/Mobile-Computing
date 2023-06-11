@@ -214,6 +214,9 @@ class FinishDialogFragment(private val score: Int) : DialogFragment() {
                     saveScoreToFirebase(user, currentScore)
                     Toast.makeText(requireContext() , "월드랭킹 기록 갱신 \n 기록이 업데이트 되었습니다", Toast.LENGTH_SHORT).show()
                 }
+                else{
+                    Toast.makeText(requireContext() , "월드랭킹 기록 미달", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 saveScoreToFirebase(user, currentScore)
                 Toast.makeText(requireContext() , "월드랭킹에 최초 등록되었습니다", Toast.LENGTH_SHORT).show()

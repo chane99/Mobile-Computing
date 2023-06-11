@@ -8,6 +8,7 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -17,6 +18,7 @@ import com.example.breakingblock.databinding.ActivityMainBinding
 import com.example.breakingblock.roomdb.ScoreDatabase
 import com.example.breakingblock.roomdb.User
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 import kotlinx.coroutines.*
 
@@ -28,6 +30,7 @@ class MainActivity : Activity() {
     private var backPressedTime: Long = 0
     private lateinit var adapter: UserAdapter
     private lateinit var mFirebaseAuth: FirebaseAuth // 파이어베이스 인증처리
+    private var currentUser: FirebaseUser? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +39,8 @@ class MainActivity : Activity() {
         setContentView(binding.root)
         var db = ScoreDatabase.getInstance(applicationContext)
         mFirebaseAuth = FirebaseAuth.getInstance()
+        currentUser = FirebaseAuth.getInstance().currentUser
+        updateLoginButtonVisibility()
 
 
         // 미디어 플레이어 초기화
@@ -116,9 +121,13 @@ class MainActivity : Activity() {
             mFirebaseAuth.signOut()
             if (mFirebaseAuth.currentUser == null) {
                 Toast.makeText(this@MainActivity, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
+
             } else {
                 Toast.makeText(this@MainActivity, "로그아웃에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
+            updateLoginButtonVisibility()
+
+
         }
 
 
@@ -160,5 +169,19 @@ class MainActivity : Activity() {
         } else {
             finishAffinity()
         }
+    }
+    // 로그인 버튼 가시성 설정
+    private fun updateLoginButtonVisibility() {
+
+        if (mFirebaseAuth.currentUser != null) {
+            // 로그인된 상태
+            binding.login.visibility = View.GONE
+            binding.logout.visibility = View.VISIBLE
+        } else {
+            // 로그아웃된 상태
+            binding.login.visibility = View.VISIBLE
+            binding.logout.visibility = View.GONE
+        }
+
     }
 }
