@@ -457,6 +457,9 @@ class GameView(context: Context) : View(context) {
                 ballY = 0F
             } else if (ballY >= viewHeight) {
                 func_Reset()
+                val sound = MediaPlayer.create(context, R.raw.falling)
+                sound.setVolume(1.0F, 1.0F)
+                sound.start()
             }
         }
     }
@@ -523,6 +526,7 @@ class GameView(context: Context) : View(context) {
                 // 공의 Y축 속도를 뒤집음
                 ballSpeedY *= -1
                 ballY += ballSpeedY
+
             }
 
         }
