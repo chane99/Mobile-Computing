@@ -94,9 +94,10 @@ class GameView(context: Context) : View(context) {
         super.onDraw(canvas)
 
         canvas.drawColor(Color.WHITE)
+        func_BlockCheck()
         func_BallMove()
         func_PaddleCheck()
-        func_BlockCheck()
+
 
         imgBall?.let { canvas.drawBitmap(it, ballX, ballY, null) }
         canvas.drawBitmap(imgPaddle, paddleX.toFloat(), paddleY.toFloat(), null)
@@ -533,7 +534,7 @@ class GameView(context: Context) : View(context) {
         val blocksToRemove = ArrayList<Block>()
 
         for (w_Block in m_Arr_BlockList) {
-            val w_BlockCheck = w_Block.IsClash(ballX, ballY, ballDiameter, ballRadius)
+            val w_BlockCheck = w_Block.IsClash(ballX, ballY, ballRadius)
             when (w_BlockCheck) {
                 0 -> continue
                 1, 2 -> {
