@@ -53,12 +53,18 @@ class RegisterActivity : AppCompatActivity() {
                             Toast.makeText(this@RegisterActivity, "이미 가입된 이메일입니다", Toast.LENGTH_SHORT).show()
                         } else {
                             // 이메일 중복 없음, 닉네임 중복 확인
-                            val nicknameRef = mDatabaseRef.child("UserAccount").orderByChild("nickname").equalTo(mNickname)
+                            val nicknameRef = mDatabaseRef.child("UserAccount").orderByChild("displayName").equalTo(mNickname)
                             nicknameRef.addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     if (dataSnapshot.exists()) {
-                                        // 이미 존재하는 닉네임인 경우
-                                        Toast.makeText(this@RegisterActivity, "이미 존재하는 닉네임입니다", Toast.LENGTH_SHORT).show()
+                                        for (snapshot in dataSnapshot.children) {
+                                            val account = snapshot.getValue(UserAccount::class.java)
+                                            if (account?.displayName == mNickname) {
+                                                // 이미 존재하는 닉네임인 경우
+                                                Toast.makeText(this@RegisterActivity, "이미 존재하는 닉네임입니다.", Toast.LENGTH_SHORT).show()
+                                                return
+                                            }
+                                        }
                                     } else {
                                         // 존재하지 않는 이메일과 닉네임인 경우, 회원 가입 진행
                                         mFirebaseAuth.createUserWithEmailAndPassword(strEmail, strPwd)
